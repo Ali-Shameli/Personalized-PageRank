@@ -69,19 +69,18 @@ def get_manual_graph_data():
         except ValueError:
             print("Error: Node IDs must be integers and weight must be a number.")
 
-    # Determine total number of unique nodes
+    # Determine total number of unique nodes based on entries
     n_nodes = max(max(src_list), max(dst_list)) + 1
     print(f"\nTotal nodes detected: {n_nodes} (indexed 0 to {n_nodes - 1})")
 
     # 2. Fraud Seed Collection
-    print("\nEnter initial fraud seed nodes.")
+    print("\nEnter initial fraud seed nodes (these will be treated as known frauds).")
     print("Separate IDs with space. Example: 1 5")
 
     def parse_seeds(inp):
         return [int(x) for x in inp.split()]
 
     def validate_seeds(seeds):
-        # Ensure all seeds exist within the graph range
         return all(0 <= node < n_nodes for node in seeds) and len(seeds) > 0
 
     fraud_seeds = get_valid_input(
@@ -106,15 +105,15 @@ def main():
         error_msg="Please enter 1 or 2."
     )
 
-    labels = None  # Used for evaluation if ground truth is available
+    labels = {}  # Dictionary to store ground truth (node: label)
 
     if choice == 1:
         print("\n[INFO] Loading data from CSV...")
         try:
-            # Note: Expects load_transactions to return (src, dst, weights, n_nodes, labels)
+            # Assuming data_loader is updated to return weights and labels
             src, dst, weights, n_nodes, labels = load_transactions("transactions.csv")
 
-            # Extract seed set from ground truth labels (where label == 1)
+            # Identify seed set (where label is 1)
             fraud_seeds = [node for node, lab in labels.items() if lab == 1]
             print(f"[INFO] Loaded {n_nodes} nodes and {len(fraud_seeds)} initial seeds.")
 
@@ -128,6 +127,13 @@ def main():
     else:
         # Manual Mode
         src, dst, weights, n_nodes, fraud_seeds = get_manual_graph_data()
+
+        # In Manual mode, we assume the provided seeds are the only known frauds
+        # This allows us to calculate Precision for the manual graph as well
+        labels = {node: 0 for node in range(n_nodes)}
+        for seed in fraud_seeds:
+            labels[seed] = 1
+
         print("\n[INFO] Manual graph constructed successfully.")
 
     # --- PPR Algorithm Execution ---
@@ -143,7 +149,6 @@ def main():
     scores = personalized_pagerank(A, alpha=0.85, max_iter=100, tol=1e-6, personalize=p)
 
     # 4. Results Presentation
-    # Sort nodes by score in descending order
     sorted_nodes = np.argsort(scores)[::-1]
 
     print("\n[RESULTS] Most suspicious nodes:")
@@ -151,21 +156,23 @@ def main():
     for rank, node in enumerate(sorted_nodes):
         is_seed = " (Known Seed)" if node in fraud_seeds else ""
         print(f"Rank {rank + 1:2d}: Node {node:4d} | Score: {scores[node]:.6f}{is_seed}")
-        # Limit output for large graphs in CSV mode
+
+        # Limit the output for large graphs from CSV
         if choice == 1 and rank >= 19:
             print("... (showing top 20 results)")
             break
 
     print("-" * 50)
 
-    # 5. Evaluation (Only if ground truth labels are available from CSV)
-    if labels is not None:
-        print("\n[EVALUATION] Model Performance Metrics:")
-        for k in [5, 10, 20]:
+    # 5. Evaluation
+    # Shows how many of the top-k results are actually in our fraud list
+    print("\n[EVALUATION] Model Performance Metrics (Precision@k):")
+    # For small manual graphs, k should not exceed total node count
+    test_ks = [5, 10, 20]
+    for k in test_ks:
+        if k <= n_nodes or choice == 1:
             prec = precision_at_k(scores, labels, k)
             print(f"Precision@{k}: {prec:.3f}")
-    else:
-        print("\n[INFO] Evaluation skipped: No ground truth labels available in manual mode.")
 
 
 if __name__ == "__main__":
