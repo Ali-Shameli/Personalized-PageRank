@@ -2,6 +2,7 @@
 import numpy as np
 from scipy import sparse
 
+
 def make_personalization_vector(n_nodes, fraud_seeds):
     p = np.zeros(n_nodes, dtype=np.float64)
     if len(fraud_seeds) == 0:
@@ -10,6 +11,7 @@ def make_personalization_vector(n_nodes, fraud_seeds):
         p[fraud_seeds] = 1.0
         p /= p.sum()
     return p
+
 
 def personalized_pagerank(A, alpha=0.85, max_iter=100, tol=1e-6,
                           personalize=None):

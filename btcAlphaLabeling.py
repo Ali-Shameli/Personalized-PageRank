@@ -31,6 +31,5 @@ def create_labeled_dataset(input_file, output_file):
     final_df.to_csv(output_file, index=False)
 
 
-
 # Run the script
 create_labeled_dataset('soc-sign-bitcoinalpha.csv', 'transactions_bitcoin_labeled.csv')
