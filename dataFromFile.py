@@ -4,7 +4,7 @@ from data_loader import load_transactions
 from inputValidation import get_valid_input
 
 
-def provide_data_from_file(src, dst, weights, n_nodes, labels, node_map, reverse_map, fraud_seeds):
+def provide_data_from_file():
     print("which network?")
     print("1 : test(6 nodes)")
     print("2 : btcAlpha")

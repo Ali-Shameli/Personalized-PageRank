@@ -32,16 +32,20 @@ if __name__ == "__main__":
     reverse_map = {}  # Internal Index -> Real ID
 
     if choice == 1:
-        provide_data_from_file(src, dst, weights, n_nodes, labels, node_map, reverse_map, fraud_seeds)
+        src, dst, weights, n_nodes, labels, node_map, reverse_map, fraud_seeds = provide_data_from_file()
 
 
     else:
-        provide_data_from_cn(src, dst, weights, n_nodes, labels, node_map, reverse_map, fraud_seeds)
+        src, dst, weights, n_nodes, labels, node_map, reverse_map, fraud_seeds = provide_data_from_cn()
 
 
     # --- PPR Algorithm Execution ---
 
     # Build matrix using internal mapped indices (0 to n_nodes-1)
+
+    print(type(src), src)
+    print(type(dst), dst)
+    print(type(weights), weights)
     A = build_adj_matrix(src, dst, weights, n_nodes)
 
     # Create personalization vector
