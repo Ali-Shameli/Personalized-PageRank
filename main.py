@@ -5,10 +5,10 @@ from ppr import make_personalization_vector, personalized_pagerank
 from evaluate import precision_at_k
 
 # 1. Load data
-src, dst, n_nodes, labels = load_transactions("transactions.csv")
+src, dst, weights, n_nodes, labels = load_transactions("transactions.csv")
 
 # 2. Build graph
-A = build_adj_matrix(src, dst, n_nodes)
+A = build_adj_matrix(src, dst, weights, n_nodes)
 
 # 3. Define fraud seed set (e.g., nodes labeled 1)
 fraud_seeds = [node for node, lab in labels.items() if lab == 1]
