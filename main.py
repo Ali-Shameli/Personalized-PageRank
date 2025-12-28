@@ -1,9 +1,8 @@
 # main.py
 import numpy as np
-import sys
-from data_loader import load_transactions, build_adj_matrix
+from data_loader import build_adj_matrix
+from dynamicEvaluation import dynamic_evaluation
 from ppr import make_personalization_vector, personalized_pagerank
-from evaluate import precision_at_k
 from inputValidation import get_valid_input
 from dataFromFile import provide_data_from_file
 from dataFromCN import provide_data_from_cn
@@ -79,23 +78,4 @@ if __name__ == "__main__":
 
 
     # Dynamic Evaluation Section
-    if labels:
-        print("\n[EVALUATION] Precision at different k values:")
-        print("-" * 50)
-
-        # Define all possible k values
-        k_values = [5, 10, 20, 30, 40, 50, 60]
-
-        # Filter k values based on n_nodes
-        # Example: if n_nodes=11, it shows k=5 and k=10
-        valid_ks = [k for k in k_values if k < n_nodes]
-
-        if not valid_ks and n_nodes > 0:
-            # If graph is very small (e.g. n=3), just show the largest possible
-            valid_ks = [n_nodes]
-
-        for k in valid_ks:
-            prec = precision_at_k(scores, labels, k)
-            print(f"Precision@{k:2d}: {prec:.4f}")
-
-        print("-" * 50)
+    dynamic_evaluation(labels, n_nodes, scores)
