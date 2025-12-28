@@ -4,74 +4,9 @@ import sys
 from data_loader import load_transactions, build_adj_matrix
 from ppr import make_personalization_vector, personalized_pagerank
 from evaluate import precision_at_k
-
-
-def get_valid_input(prompt, parse_func, condition=lambda x: True, error_msg="Invalid input."):
-    """
-    Helper function to ensure user input is valid.
-    """
-    while True:
-        try:
-            user_input = input(prompt).strip()
-            if not user_input:
-                continue
-            parsed_value = parse_func(user_input)
-            if condition(parsed_value):
-                return parsed_value
-            else:
-                print(error_msg)
-        except ValueError:
-            print(error_msg)
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-
-
-def get_manual_graph_data():
-    """
-    Collects raw graph edges and seeds from user manually.
-    Returns raw lists (before mapping).
-    """
-    print("\n--- Manual Graph Data Entry ---")
-    print("Format: source destination weight")
-    print("Example: 10 20 5.5")
-    print("Type 'end' to finish adding edges.\n")
-
-    src_list = []
-    dst_list = []
-    weights_list = []
-
-    # Edge Collection Loop
-    while True:
-        line = input("Edge (src dst weight) or 'end': ").strip()
-        if line.lower() == 'end':
-            break
-
-        parts = line.split()
-        if len(parts) != 3:
-            print("Invalid format. Need 3 values.")
-            continue
-
-        try:
-            s = int(parts[0])
-            d = int(parts[1])
-            w = float(parts[2])
-            src_list.append(s)
-            dst_list.append(d)
-            weights_list.append(w)
-        except ValueError:
-            print("Invalid numbers. Integers for IDs, float for weight.")
-
-    # Seed Collection
-    print("\nEnter Fraud Seeds (IDs separated by space):")
-    seeds_input = input("> ").strip()
-    raw_seeds = []
-    if seeds_input:
-        try:
-            raw_seeds = [int(x) for x in seeds_input.split()]
-        except ValueError:
-            print("Invalid seeds. Proceeding with empty seed list.")
-
-    return src_list, dst_list, weights_list, raw_seeds
+from inputValidation import get_valid_input
+from customNetworkCreator import get_manual_graph_data
+from dataFromFile import provide_data_from_file
 
 
 if __name__ == "__main__":
@@ -98,41 +33,8 @@ if __name__ == "__main__":
     reverse_map = {}  # Internal Index -> Real ID
 
     if choice == 1:
-        print("which network?")
-        print("1 : test(6 nodes)")
-        print("2 : btcAlpha")
+        provide_data_from_file(src, dst, weights, n_nodes, labels, node_map, reverse_map)
 
-        secchoice = get_valid_input(
-            "Select option [1/2]: ",
-            int,
-            lambda x: x in [1, 2]
-        )
-        if secchoice == 1:
-            file_path = "transactions.csv"
-        else:
-            file_path = "transactions_bitcoin_labeled.csv"
-
-
-        try:
-            print(f"\n[INFO] Loading {file_path}...")
-            # Unpacking the new return values including maps
-            src, dst, weights, n_nodes, labels, node_map, reverse_map = load_transactions(file_path)
-
-            print(f"[INFO] Graph loaded.")
-            print(f"       Unique Nodes: {n_nodes}")
-            print(f"       Edges: {len(weights)}")
-
-            # Extract seeds from labels (where label == 1)
-            # Note: keys in labels are already mapped to internal indices
-            fraud_seeds = [node for node, label in labels.items() if label == 1]
-            print(f"       Fraud Seeds found in file: {len(fraud_seeds)}")
-
-        except FileNotFoundError:
-            print("Error: File not found.")
-            sys.exit()
-        except Exception as e:
-            print(f"Error loading file: {e}")
-            sys.exit()
 
     else:
         raw_src, raw_dst, raw_weights, raw_seeds_input = get_manual_graph_data()
