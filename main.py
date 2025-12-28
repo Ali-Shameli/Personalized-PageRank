@@ -187,9 +187,9 @@ def main():
     # Shows how many of the top-k results are actually in our fraud list
     print("\n[EVALUATION] Model Performance Metrics (Precision@k):")
     # For small manual graphs, k should not exceed total node count
-    test_ks = [5, 10, 20]
+    test_ks = [5, 10, 20, 30, 40, 50, 60]
     for k in test_ks:
-        if k <= n_nodes or choice == 1:
+        if k <= n_nodes:
             prec = precision_at_k(scores, labels, k)
             print(f"Precision@{k}: {prec:.3f}")
 
