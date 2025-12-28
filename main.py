@@ -34,18 +34,12 @@ if __name__ == "__main__":
     if choice == 1:
         src, dst, weights, n_nodes, labels, node_map, reverse_map, fraud_seeds = provide_data_from_file()
 
-
     else:
         src, dst, weights, n_nodes, labels, node_map, reverse_map, fraud_seeds = provide_data_from_cn()
-
 
     # --- PPR Algorithm Execution ---
 
     # Build matrix using internal mapped indices (0 to n_nodes-1)
-
-    print(type(src), src)
-    print(type(dst), dst)
-    print(type(weights), weights)
     A = build_adj_matrix(src, dst, weights, n_nodes)
 
     # Create personalization vector
@@ -79,7 +73,6 @@ if __name__ == "__main__":
         is_seed = " (Known Seed)" if internal_idx in fraud_seeds else ""
 
         print(f"Rank {rank + 1:2d}: Node {real_node_id:4d} | Score: {score:.6f}{is_seed}")
-
 
     # Dynamic Evaluation Section
     dynamic_evaluation(labels, n_nodes, scores)

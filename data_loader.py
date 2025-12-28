@@ -5,7 +5,7 @@ from scipy import sparse
 
 def load_transactions(path):
     """
-    Loads transactions and maps potentially sparse IDs to contiguous indices (0..N-1).
+    Loads transactions and maps potentially sparse IDs to contiguous indices (0.N-1).
     Returns:
         mapped_src, mapped_dst, mapped_weights, n_nodes, mapped_labels,
         node_map (RealID -> InternalID), reverse_map (InternalID -> RealID)

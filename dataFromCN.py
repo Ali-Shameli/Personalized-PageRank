@@ -2,6 +2,7 @@ import sys
 import numpy as np
 from customNetworkCreator import get_manual_graph_data
 
+
 def provide_data_from_cn():
     # Retrieve raw data from user input
     raw_src, raw_dst, raw_weights, raw_seeds_input = get_manual_graph_data()
