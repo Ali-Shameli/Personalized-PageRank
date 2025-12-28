@@ -96,13 +96,14 @@ def get_manual_graph_data():
 def main():
     print("=== Fraud Detection System (PPR-based) ===")
     print("1. Load data from 'transactions.csv'")
-    print("2. Enter graph data manually")
+    print("2. Load data from 'bitcoinAlpha'")
+    print("3. Enter graph data manually")
 
     choice = get_valid_input(
-        prompt="Select an option (1 or 2): ",
+        prompt="Select an option (1, 2 or 3): ",
         parse_func=int,
-        condition=lambda x: x in [1, 2],
-        error_msg="Please enter 1 or 2."
+        condition=lambda x: x in [1, 2, 3],
+        error_msg="Please enter 1, 2 or 3."
     )
 
     labels = {}  # Dictionary to store ground truth (node: label)
@@ -123,6 +124,24 @@ def main():
         except Exception as e:
             print(f"Error during file loading: {e}")
             sys.exit(1)
+
+    elif choice == 2:
+        print("\n[INFO] Loading data from btcAlpha...")
+        try:
+            # Assuming data_loader is updated to return weights and labels
+            src, dst, weights, n_nodes, labels = load_transactions("transactions_bitcoin_labeled.csv")
+
+            # Identify seed set (where label is 1)
+            fraud_seeds = [node for node, lab in labels.items() if lab == 1]
+            print(f"[INFO] Loaded {n_nodes} nodes and {len(fraud_seeds)} initial seeds.")
+
+        except FileNotFoundError:
+            print("Error: 'transactions.csv' not found!")
+            sys.exit(1)
+        except Exception as e:
+            print(f"Error during file loading: {e}")
+            sys.exit(1)
+
 
     else:
         # Manual Mode
