@@ -4,7 +4,7 @@ from data_loader import load_transactions
 from inputValidation import get_valid_input
 
 
-def provide_data_from_file(src, dst, weights, n_nodes, labels, node_map, reverse_map):
+def provide_data_from_file(src, dst, weights, n_nodes, labels, node_map, reverse_map, fraud_seeds):
     print("which network?")
     print("1 : test(6 nodes)")
     print("2 : btcAlpha")
@@ -33,7 +33,7 @@ def provide_data_from_file(src, dst, weights, n_nodes, labels, node_map, reverse
         fraud_seeds = [node for node, label in labels.items() if label == 1]
         print(f"       Fraud Seeds found in file: {len(fraud_seeds)}")
 
-        return src, dst, weights, n_nodes, labels, node_map, reverse_map
+        return src, dst, weights, n_nodes, labels, node_map, reverse_map, fraud_seeds
 
     except FileNotFoundError:
         print("Error: File not found.")
