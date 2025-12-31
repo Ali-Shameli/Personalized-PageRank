@@ -19,6 +19,13 @@ class AppState:
         self.A = None
         self.fraud_seeds: list[int] = []
 
+        # نتایج آخرین اجرای PPR
+        self.ppr_scores = None
+        self.ppr_n_iter: int | None = None
+        self.ppr_final_err: float | None = None
+        self.ppr_precision_at_k: float | None = None
+        self.ppr_k: int = 10
+
 
 STATE = AppState()
 
@@ -144,12 +151,121 @@ def _on_load_dataset(dataset_var: tk.StringVar, frame: ttk.Frame) -> None:
 # ----------------- PLACEHOLDERS FOR OTHER TABS ----------------- #
 
 def _build_run_tab(frame: ttk.Frame) -> None:
-    label = ttk.Label(
-        frame,
-        text="Run tab: در مرحله بعد تنظیمات الگوریتم و دکمه Run را اینجا اضافه می‌کنیم.",
-    )
-    label.pack(padx=20, pady=20, anchor="w")
+    """Tab for configuring and running PPR."""
+    frame.columnconfigure(0, weight=0)
+    frame.columnconfigure(1, weight=1)
 
+    title = ttk.Label(frame, text="Run Personalized PageRank", font=("Segoe UI", 12, "bold"))
+    title.grid(row=0, column=0, columnspan=2, sticky="w", padx=16, pady=(16, 8))
+
+    # پارامترها
+    ttk.Label(frame, text="Alpha (damping):").grid(row=1, column=0, sticky="w", padx=16, pady=4)
+    alpha_var = tk.StringVar(value="0.85")
+    alpha_entry = ttk.Entry(frame, textvariable=alpha_var, width=10)
+    alpha_entry.grid(row=1, column=1, sticky="w", padx=4, pady=4)
+
+    ttk.Label(frame, text="Tolerance (tol):").grid(row=2, column=0, sticky="w", padx=16, pady=4)
+    tol_var = tk.StringVar(value="1e-6")
+    tol_entry = ttk.Entry(frame, textvariable=tol_var, width=10)
+    tol_entry.grid(row=2, column=1, sticky="w", padx=4, pady=4)
+
+    ttk.Label(frame, text="Max iterations:").grid(row=3, column=0, sticky="w", padx=16, pady=4)
+    max_iter_var = tk.StringVar(value="100")
+    max_iter_entry = ttk.Entry(frame, textvariable=max_iter_var, width=10)
+    max_iter_entry.grid(row=3, column=1, sticky="w", padx=4, pady=4)
+
+    ttk.Label(frame, text="K for Precision@K:").grid(row=4, column=0, sticky="w", padx=16, pady=4)
+    k_var = tk.StringVar(value="10")
+    k_entry = ttk.Entry(frame, textvariable=k_var, width=10)
+    k_entry.grid(row=4, column=1, sticky="w", padx=4, pady=4)
+
+    # دکمه Run
+    run_btn = ttk.Button(
+        frame,
+        text="Run Personalized PageRank",
+        command=lambda: _on_run_ppr(alpha_var, tol_var, max_iter_var, k_var, frame),
+    )
+    run_btn.grid(row=5, column=0, columnspan=2, sticky="w", padx=16, pady=(12, 8))
+
+    # ناحیه وضعیت
+    status_label = ttk.Label(frame, text="Status: waiting for input...")
+    status_label.grid(row=6, column=0, columnspan=2, sticky="w", padx=16, pady=(8, 4))
+
+    frame.status_label = status_label  # type: ignore[attr-defined]
+
+def _on_run_ppr(
+    alpha_var: tk.StringVar,
+    tol_var: tk.StringVar,
+    max_iter_var: tk.StringVar,
+    k_var: tk.StringVar,
+    frame: ttk.Frame,
+) -> None:
+    """Run PPR on the currently loaded dataset."""
+    if STATE.A is None or STATE.n_nodes is None or STATE.labels is None:
+        messagebox.showwarning("No dataset", "Please load a dataset from the Data tab first.")
+        return
+
+    try:
+        alpha = float(alpha_var.get())
+        tol = float(tol_var.get())
+        max_iter = int(max_iter_var.get())
+        k = int(k_var.get())
+        if not (0.0 < alpha < 1.0):
+            raise ValueError("alpha must be between 0 and 1")
+        if max_iter <= 0 or k <= 0:
+            raise ValueError("max_iter and K must be positive")
+    except Exception as e:
+        messagebox.showerror("Invalid parameters", f"{type(e).__name__}: {e}")
+        return
+
+    status_label: ttk.Label = frame.status_label  # type: ignore[attr-defined]
+    status_label.config(text="Status: running PPR...")
+
+    frame.update_idletasks()
+
+    try:
+        n_nodes = STATE.n_nodes
+        assert n_nodes is not None
+
+        # personalization
+        p = make_personalization_vector(n_nodes, STATE.fraud_seeds)
+
+        # run PPR
+        scores, n_iter, final_err = personalized_pagerank(
+            STATE.A,
+            alpha=alpha,
+            max_iter=max_iter,
+            tol=tol,
+            personalize=p,
+        )
+
+        # precision@k
+        prec = precision_at_k(scores, STATE.labels, k)
+
+        # ذخیره در STATE
+        STATE.ppr_scores = scores
+        STATE.ppr_n_iter = n_iter
+        STATE.ppr_final_err = final_err
+        STATE.ppr_precision_at_k = prec
+        STATE.ppr_k = k
+
+        status_label.config(
+            text=(
+                f"Status: done. iterations={n_iter}, "
+                f"error={final_err:.2e}, Precision@{k}={prec:.4f}"
+            )
+        )
+
+        messagebox.showinfo(
+            "PPR finished",
+            f"PPR finished in {n_iter} iterations.\n"
+            f"Final L1 error: {final_err:.2e}\n"
+            f"Precision@{k}: {prec:.4f}",
+        )
+
+    except Exception as e:
+        status_label.config(text="Status: error.")
+        messagebox.showerror("Error running PPR", f"{type(e).__name__}: {e}")
 
 def _build_results_tab(frame: ttk.Frame) -> None:
     label = ttk.Label(
