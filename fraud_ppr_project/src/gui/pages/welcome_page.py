@@ -1,10 +1,14 @@
-# gui/pages/welcome_page.py
+# src/gui/pages/welcome_page.py
 from __future__ import annotations
 
 from tkinter import ttk
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from gui.app import WizardApp  # فقط برای type hints، در runtime استفاده نمی‌شود
 
 
-def build_welcome_page(frame: ttk.Frame, go_next) -> None:
+def build_welcome_page(frame: ttk.Frame, app) -> None:
     """Build the centered welcome page UI inside the given frame."""
     frame.columnconfigure(0, weight=1)
     frame.columnconfigure(1, weight=2)
@@ -25,7 +29,7 @@ def build_welcome_page(frame: ttk.Frame, go_next) -> None:
     desc_text = (
         "Analyze transaction graphs and highlight potentially fraudulent nodes\n"
         "using Personalized PageRank and the 'guilt by association' principle.\n\n"
-        "Click start to continue."
+        "Start the 3-step wizard to load data and run the analysis."
     )
     desc = ttk.Label(
         frame,
@@ -40,6 +44,6 @@ def build_welcome_page(frame: ttk.Frame, go_next) -> None:
         frame,
         text="Start analysis",
         style="Nav.TButton",
-        command=go_next,  # فعلاً فقط تابع ساده برای رفتن به صفحه بعد
+        command=lambda: app.show_page(1),  # رفتن به صفحه Load
     )
     start_btn.grid(row=2, column=1, sticky="we", padx=120, pady=(4, 4))
