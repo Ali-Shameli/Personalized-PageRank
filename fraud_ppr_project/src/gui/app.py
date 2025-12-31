@@ -4,8 +4,8 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import ttk
 
-from gui.theme import apply_dark_theme
-from gui.pages.welcome_page import build_welcome_page
+from .theme import apply_dark_theme
+from .pages.welcome_page import build_welcome_page
 
 
 class WizardApp(tk.Tk):
