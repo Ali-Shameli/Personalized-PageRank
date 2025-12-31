@@ -2,6 +2,8 @@
 
 import tkinter as tk
 from tkinter import ttk, messagebox
+import numpy as np
+
 
 from src.data.data_loader import load_transactions, build_adj_matrix
 from src.algorithms.ppr_power import make_personalization_vector, personalized_pagerank
@@ -268,8 +270,107 @@ def _on_run_ppr(
         messagebox.showerror("Error running PPR", f"{type(e).__name__}: {e}")
 
 def _build_results_tab(frame: ttk.Frame) -> None:
-    label = ttk.Label(
+    """Tab for displaying PPR results (top-K table + summary)."""
+    frame.rowconfigure(1, weight=1)
+    frame.columnconfigure(0, weight=1)
+
+    title = ttk.Label(frame, text="PPR Results", font=("Segoe UI", 12, "bold"))
+    title.grid(row=0, column=0, sticky="w", padx=16, pady=(16, 4))
+
+    # خلاصه
+    summary_var = tk.StringVar(value="No results yet. Run PPR first.")
+    summary_label = ttk.Label(frame, textvariable=summary_var, justify="left")
+    summary_label.grid(row=1, column=0, sticky="nw", padx=16, pady=(0, 8))
+
+    # جدول top-K
+    columns = ("rank", "node", "score", "is_seed", "label")
+    tree = ttk.Treeview(
         frame,
-        text="Results tab: در مرحله بعد جدول Top-K و Precision@K اینجا نمایش داده می‌شود.",
+        columns=columns,
+        show="headings",
+        height=15,
     )
-    label.pack(padx=20, pady=20, anchor="w")
+    tree.heading("rank", text="Rank")
+    tree.heading("node", text="Node ID")
+    tree.heading("score", text="Score")
+    tree.heading("is_seed", text="Seed?")
+    tree.heading("label", text="True label")
+
+    tree.column("rank", width=60, anchor="center")
+    tree.column("node", width=80, anchor="center")
+    tree.column("score", width=120, anchor="e")
+    tree.column("is_seed", width=70, anchor="center")
+    tree.column("label", width=80, anchor="center")
+
+    tree.grid(row=2, column=0, sticky="nsew", padx=16, pady=(0, 8))
+
+    # اسکرول عمودی
+    scrollbar = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
+    tree.configure(yscrollcommand=scrollbar.set)
+    scrollbar.grid(row=2, column=1, sticky="ns", pady=(0, 8))
+
+    # دکمه برای refresh (وقتی Run PPR تمام شد)
+    refresh_btn = ttk.Button(
+        frame,
+        text="Refresh from last PPR run",
+        command=lambda: _refresh_results(summary_var, tree),
+    )
+    refresh_btn.grid(row=3, column=0, sticky="w", padx=16, pady=(4, 12))
+
+    # ذخیره برای استفاده بعدی
+    frame.summary_var = summary_var   # type: ignore[attr-defined]
+    frame.tree = tree                 # type: ignore[attr-defined]
+
+def _refresh_results(summary_var: tk.StringVar, tree: ttk.Treeview) -> None:
+    """Update summary label and top-K table from STATE."""
+    if STATE.ppr_scores is None or STATE.n_nodes is None or STATE.labels is None:
+        messagebox.showwarning(
+            "No results",
+            "No PPR results found. Please run PPR in the 'Run PPR' tab first.",
+        )
+        return
+
+    scores = STATE.ppr_scores
+    labels = STATE.labels
+    fraud_seeds = set(STATE.fraud_seeds)
+    k = STATE.ppr_k or 10
+
+    n = len(scores)
+    k_eff = min(k, n)
+    sorted_nodes = np.argsort(scores)[::-1][:k_eff]
+
+    # خلاصه
+    n_iter = STATE.ppr_n_iter
+    final_err = STATE.ppr_final_err
+    prec = STATE.ppr_precision_at_k
+
+    summary_lines = [
+        f"Dataset: {STATE.dataset_name or 'N/A'}",
+        f"Top-K shown: {k_eff}",
+        f"Iterations: {n_iter}",
+        f"Final L1 error: {final_err:.2e}" if final_err is not None else "Final L1 error: N/A",
+        f"Precision@{k}: {prec:.4f}" if prec is not None else f"Precision@{k}: N/A",
+    ]
+    summary_var.set("\n".join(summary_lines))
+
+    # پاک‌کردن جدول قبلی
+    for item in tree.get_children():
+        tree.delete(item)
+
+    # پر کردن جدول
+    for rank, node in enumerate(sorted_nodes, start=1):
+        score = scores[node]
+        is_seed = "Yes" if node in fraud_seeds else "No"
+        true_label = labels.get(int(node), 0)
+        tree.insert(
+            "",
+            "end",
+            values=(
+                rank,
+                int(node),
+                f"{score:.6f}",
+                is_seed,
+                true_label,
+            ),
+        )
+
