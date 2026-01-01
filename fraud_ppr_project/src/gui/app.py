@@ -4,14 +4,21 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Dict
 
+from .pages.load_page import build_load_page
 from .theme import apply_dark_theme
 from .pages.welcome_page import build_welcome_page
 # بعداً: از این‌جا load/run/results را هم ایمپورت می‌کنیم
 
+class AppState:
+    def __init__(self) -> None:
+        self.data_path: str | None = None
+        self.data_source: str | None = None  # e.g. "sample_small", "sample_bitcoin", "custom"
 
 class WizardApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
+
+        self.state = AppState()
 
         self.title("Fraud Detection via Personalized PageRank")
         self.geometry("900x600")
@@ -39,7 +46,6 @@ class WizardApp(tk.Tk):
     # ---------- صفحه‌ها ----------
 
     def _create_page(self, index: int) -> None:
-        """Create a page frame if not already created."""
         if index in self.frames:
             return
 
@@ -49,8 +55,9 @@ class WizardApp(tk.Tk):
 
         if index == 0:
             build_welcome_page(frame, app=self)
-        # بعداً: elif index == 1: build_load_page(...)
-        #       elif index == 2: build_run_page(...)
+        elif index == 1:
+            build_load_page(frame, app=self)
+        # بعداً: elif index == 2: build_run_page(...)
         #       elif index == 3: build_results_page(...)
 
     def show_page(self, index: int) -> None:
