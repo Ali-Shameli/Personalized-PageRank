@@ -79,4 +79,25 @@ def apply_dark_theme(root: tk.Tk) -> ttk.Style:
         borderwidth=0,
     )
 
+    # Treeview (برای جدول نتایج)
+    style.configure(
+        "Treeview",
+        background=frame_bg,
+        foreground=fg,
+        fieldbackground=frame_bg,
+        bordercolor=bg,
+        borderwidth=0,
+    )
+    style.map(
+        "Treeview",
+        background=[("selected", "#505050")],
+        foreground=[("selected", "#ffffff")],
+    )
+    style.configure(
+        "Treeview.Heading",
+        background=bg,
+        foreground=fg,
+    )
+
     return style
+

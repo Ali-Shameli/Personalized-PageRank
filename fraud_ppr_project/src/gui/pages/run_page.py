@@ -65,15 +65,29 @@ def build_run_page(frame: ttk.Frame, app) -> None:
     )
     status_label.grid(row=3, column=0, columnspan=3, sticky="we", padx=24, pady=(8, 0))
 
+    
     def on_run() -> None:
         if not app.state.data_path:
             status_label.configure(text="No dataset selected on previous step.")
             return
 
+        try:
+            alpha = float(alpha_var.get())
+            max_iter = int(maxiter_var.get())
+            tol = float(tol_var.get())
+        except ValueError:
+            status_label.configure(text="Invalid parameter values.")
+            return
+
         status_label.configure(text="Running Personalized PageRank…")
-        # TODO: اینجا بعداً فراخوانی واقعی الگوریتم را می‌گذاریم
-        # مثلاً app.run_ppr(alpha_var.get(), maxiter_var.get(), tol_var.get())
-        app.show_page(3)
+
+        try:
+            app.run_ppr(alpha=alpha, max_iter=max_iter, tol=tol)
+            status_label.configure(text="Analysis finished. Showing results…")
+            app.show_page(3)
+        except Exception as e:
+            # traceback.print_exc()
+            status_label.configure(text=f"Error during analysis: {e}")
 
     # ---- دکمه‌های پایین ----
     button_bar = ttk.Frame(frame)
