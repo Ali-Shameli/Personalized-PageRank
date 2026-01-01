@@ -4,10 +4,14 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Dict
 
-from .pages.load_page import build_load_page
-from .theme import apply_dark_theme
+
 from .pages.welcome_page import build_welcome_page
-# بعداً: از این‌جا load/run/results را هم ایمپورت می‌کنیم
+from .pages.load_page import build_load_page
+from .pages.run_page import build_run_page
+from .pages.results_page import build_results_page
+from .theme import apply_dark_theme
+
+
 
 class AppState:
     def __init__(self) -> None:
@@ -57,8 +61,11 @@ class WizardApp(tk.Tk):
             build_welcome_page(frame, app=self)
         elif index == 1:
             build_load_page(frame, app=self)
-        # بعداً: elif index == 2: build_run_page(...)
-        #       elif index == 3: build_results_page(...)
+        elif index == 2:
+            build_run_page(frame, app=self)
+        elif index == 3:
+            build_results_page(frame, app=self)
+
 
     def show_page(self, index: int) -> None:
         """Show the page with given index."""
