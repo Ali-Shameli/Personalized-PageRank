@@ -59,7 +59,7 @@ def build_results_page(frame: ttk.Frame, app) -> None:
 
     tree.column("rank", width=60, anchor="center")
     tree.column("node", width=80, anchor="center")
-    tree.column("score", width=120, anchor="e")
+    tree.column("score", width=120, anchor="center")
     tree.column("label", width=80, anchor="center")
 
     tree.grid(row=2, column=0, sticky="nsew", padx=24, pady=(0, 8))

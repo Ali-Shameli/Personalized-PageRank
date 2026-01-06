@@ -99,5 +99,7 @@ def apply_dark_theme(root: tk.Tk) -> ttk.Style:
         foreground=fg,
     )
 
+    style.configure("BoldSmall.TLabel", font=("Segoe UI", 10, "bold"))
+
     return style
 

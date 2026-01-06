@@ -47,3 +47,19 @@ def build_welcome_page(frame: ttk.Frame, app) -> None:
         command=lambda: app.show_page(1),  # رفتن به صفحه Load
     )
     start_btn.grid(row=2, column=1, sticky="we", padx=120, pady=(4, 4))
+    
+    how_btn = ttk.Button(
+        frame,
+        text="How it works",
+        style="Nav.TButton",
+        command=lambda: app.show_page(4),
+    )
+    how_btn.grid(row=3, column=1, sticky="we", padx=120, pady=(4, 4))
+
+    about_btn = ttk.Button(
+        frame,
+        text="About",
+        style="Nav.TButton",
+        command=lambda: app.show_page(5),
+    )
+    about_btn.grid(row=4, column=1, sticky="we", padx=120, pady=(4, 4))

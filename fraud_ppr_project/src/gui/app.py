@@ -14,6 +14,8 @@ from .pages.welcome_page import build_welcome_page
 from .pages.load_page import build_load_page
 from .pages.run_page import build_run_page
 from .pages.results_page import build_results_page
+from .pages.how_page import build_how_page      # جدید
+from .pages.about_page import build_about_page  # جدید
 from .theme import apply_dark_theme
 
 
@@ -68,6 +70,10 @@ class WizardApp(tk.Tk):
             build_run_page(frame, app=self)
         elif index == 3:
             build_results_page(frame, app=self)
+        elif index == 4:                      # جدید
+            build_how_page(frame, app=self)
+        elif index == 5:                      # جدید
+            build_about_page(frame, app=self)
 
     def show_page(self, index: int) -> None:
         self._create_page(index)
