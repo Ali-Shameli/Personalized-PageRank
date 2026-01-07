@@ -107,9 +107,19 @@ def build_load_page(frame: ttk.Frame, app) -> None:
             print("No data selected")
             return
 
+        print("DEBUG chosen_path:", chosen_path, "source:", source)
+
         app.state.data_path = chosen_path
         app.state.data_source = source
+
+        # reset old analysis results
+        app.state.scores = None
+        app.state.labels = None
+        app.state.precision_at_50 = None
+
         app.show_page(2)
+
+        app.state.precision_at_50 = None
 
     back_btn = ttk.Button(
         button_bar,

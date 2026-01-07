@@ -17,6 +17,8 @@ from .pages.results_page import build_results_page
 from .pages.how_page import build_how_page      # جدید
 from .pages.about_page import build_about_page  # جدید
 from .theme import apply_dark_theme
+from .pages.visualization_page import build_visualization_page
+
 
 
 class AppState:
@@ -74,11 +76,19 @@ class WizardApp(tk.Tk):
             build_how_page(frame, app=self)
         elif index == 5:                      # جدید
             build_about_page(frame, app=self)
-
+        elif index == 6:
+            build_visualization_page(frame, app=self)
+            
     def show_page(self, index: int) -> None:
+    # برای Results و Visualization همیشه ریفرش کن
+        if index in (3, 6) and index in self.frames:
+            self.frames[index].destroy()
+            del self.frames[index]
+
         self._create_page(index)
         frame = self.frames[index]
         frame.tkraise()
+
 
     def show_how_it_works(self) -> None:
         tk.messagebox.showinfo(
@@ -96,6 +106,8 @@ class WizardApp(tk.Tk):
         if not self.state.data_path:
             raise ValueError("No dataset selected")
 
+        print("DEBUG run_ppr data_path:", self.state.data_path)
+        
         src, dst, n_nodes, labels = load_transactions(self.state.data_path)
         # print("DEBUG shapes:", type(src), src.shape, type(dst), dst.shape, n_nodes, len(labels))
 

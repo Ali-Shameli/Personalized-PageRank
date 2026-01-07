@@ -206,6 +206,14 @@ def build_results_page(frame: ttk.Frame, app) -> None:
     )
     back_btn.pack(side="left", padx=(0, 8))
 
+    viz_btn = ttk.Button(
+    bottom_bar,
+    text="Visualization",
+    command=lambda: app.show_page(6),  # یا هر ایندکسی که برای صفحه نمودار گذاشتی
+)
+    viz_btn.pack(side="left", padx=(0, 8))
+
+
     export_btn = ttk.Button(
         bottom_bar,
         text="Export CSV…",
