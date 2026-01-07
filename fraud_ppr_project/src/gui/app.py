@@ -106,7 +106,7 @@ class WizardApp(tk.Tk):
         if not self.state.data_path:
             raise ValueError("No dataset selected")
 
-        print("DEBUG run_ppr data_path:", self.state.data_path)
+        # print("DEBUG run_ppr data_path:", self.state.data_path)
         
         src, dst, n_nodes, labels = load_transactions(self.state.data_path)
         # print("DEBUG shapes:", type(src), src.shape, type(dst), dst.shape, n_nodes, len(labels))

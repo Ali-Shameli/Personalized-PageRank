@@ -37,12 +37,13 @@ def build_results_page(frame: ttk.Frame, app) -> None:
     k_entry.grid(row=0, column=1, sticky="w")
 
     info = ttk.Label(
-        control_bar,
-        text="Top suspicious nodes by PPR score (top 20).",
-        style="Small.TLabel",
-        anchor="w",
-        justify="left",
-    )
+    control_bar,
+    text="Top suspicious nodes by PPR score.",
+    style="Small.TLabel",
+    anchor="w",
+    justify="left",
+)
+
     info.grid(row=1, column=0, columnspan=3, sticky="we", pady=(4, 0))
 
     # --- جدول ---
@@ -129,7 +130,13 @@ def build_results_page(frame: ttk.Frame, app) -> None:
 
         # مرتب‌سازی نزولی؛ برای UI حداکثر 20 سطر نشان بده
         order = np.argsort(scores)[::-1]
-        top_display = order[: min(20, n)]
+
+        # حداکثر تعداد ردیف قابل نمایش (برای کند نشدن UI)
+        max_rows = 200
+        n_rows = min(k_value, n, max_rows)
+
+        top_display = order[:n_rows]
+
 
         for idx, node in enumerate(top_display, start=1):
             score = float(scores[node])
@@ -151,12 +158,18 @@ def build_results_page(frame: ttk.Frame, app) -> None:
         k_eff = min(k_value, n)
         prec_k = precision_at_k(scores, labels, k_eff)
 
+        extra = ""
+        if k_value > max_rows:
+            extra = f"\nOnly top {max_rows} rows shown in the table for performance."
+
         info.configure(
             text=(
-                f"Top suspicious nodes by PPR score (top {len(top_display)} shown).\n"
+                f"Top suspicious nodes by PPR score (top {len(top_display)} shown)."
+                f"{extra}\n"
                 f"Precision@{k_eff}: {prec_k:.3f}"
             )
         )
+
 
     def export_csv() -> None:
         if not current_rows:
