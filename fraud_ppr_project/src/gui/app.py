@@ -10,6 +10,7 @@ import numpy as np
 from src.data.data_loader import load_transactions, build_adj_matrix
 from src.algorithms.ppr_power import make_personalization_vector, personalized_pagerank
 from src.evaluation.metrics import precision_at_k
+from .pages.manual_page import build_manual_page
 
 from .pages.welcome_page import build_welcome_page
 from .pages.load_page import build_load_page
