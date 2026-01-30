@@ -51,3 +51,37 @@ def build_manual_page(frame: ttk.Frame, app) -> None:
     seeds_entry.grid(row=0, column=0, sticky="we", padx=12, pady=12)
 
     seeds_entry.insert(0, "4, 5")
+
+    def parse_and_submit():
+        """
+        Reads input, parses it using the logic module, and updates app state.
+        """
+        raw_edges_text = text_area.get("1.0", "end").strip()
+        raw_seeds_text = seeds_entry.get().strip()
+
+        if not raw_edges_text:
+            messagebox.showerror("Input Error", "Please enter at least one edge.")
+            return
+
+        try:
+            # Delegate the heavy lifting to the parser module
+            # This returns the exact same 6-element tuple structure as load_transactions
+            results = parse_manual_data(raw_edges_text, raw_seeds_text)
+
+            # Update the Application State
+            app.state.data_source = "manual"
+            app.state.manual_data = results
+
+            # Print for debugging
+            n_nodes = results[3]
+            print(f"Manual data parsed successfully. Total nodes: {n_nodes}")
+
+            # Navigate to the 'Run Analysis' page (Index 2)
+            app.show_page(2)
+
+        except ValueError as e:
+            # Display parsing errors (e.g., non-numeric input) to the user
+            messagebox.showerror("Parsing Error", str(e))
+        except Exception as e:
+            # Catch unexpected errors
+            messagebox.showerror("Error", f"An unexpected error occurred: {e}")
