@@ -203,7 +203,7 @@ def build_run_page(frame: ttk.Frame, app) -> None:
                 params = {
                     "alpha": float(alpha_var.get()),
                     "num_walks": int(num_walks_var.get()),
-                    "walk_length": int(walk_length_var.get()),
+                    "max_steps": int(walk_length_var.get()),
                     "weighted": weighted,
                     "algorithm": "monte_carlo"
                 }
@@ -238,4 +238,3 @@ def build_run_page(frame: ttk.Frame, app) -> None:
         command=on_run,
     )
     run_btn.pack(side="left")
-    

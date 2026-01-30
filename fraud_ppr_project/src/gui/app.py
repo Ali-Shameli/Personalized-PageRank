@@ -107,9 +107,11 @@ class WizardApp(tk.Tk):
             "Fraud Detection via Personalized PageRank.\nCourse project.",
         )
 
-    def run_ppr(self, alpha: float, max_iter: int, tol: float, 
-            weighted: bool = True, algorithm: str = "power",
-            num_walks: int = None, max_steps: int = None) -> None:
+    def run_ppr(self, alpha: float, weighted: bool = True, algorithm: str = "power",
+            # Optional parameters for Power iteration
+            max_iter: int = 100, tol: float = 1e-6,
+            # Optional parameters for Monte Carlo  
+            num_walks: int = 1000, max_steps: int = 50) -> None:
         """
         Executes the Personalized PageRank algorithm.
         Handles data loading (from manual entry or file), matrix construction,
