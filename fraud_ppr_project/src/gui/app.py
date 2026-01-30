@@ -105,23 +105,32 @@ class WizardApp(tk.Tk):
         )
 
     def run_ppr(self, alpha: float, max_iter: int, tol: float) -> None:
+        """
+        Execute the Personalized PageRank algorithm.
+        This method orchestrates data loading, matrix building, and algorithm execution.
+        """
         if not self.state.data_path:
             raise ValueError("No dataset selected")
 
-        # Important change: Retrieve reverse_map from the loader
-        src, dst, n_nodes, labels, rev_map = load_transactions(self.state.data_path)
+        # Step 1: Load data
+        # Note: We now unpack 6 return values, including 'weights' and 'rev_map'
+        src, dst, weights, n_nodes, labels, rev_map = load_transactions(self.state.data_path)
 
-        # Store in state to use for displaying results
+        # Store the reverse map in the app state so the Results Page can use it later
         self.state.reverse_map = rev_map
 
-        # Print for verification
-        print(f"Graph loaded: {n_nodes} nodes (Compact Mode)")
+        print(f"Graph loaded successfully: {n_nodes} nodes (Weighted & Mapped Mode)")
 
-        A = build_adj_matrix(src, dst, n_nodes)
+        # Step 2: Build the weighted adjacency matrix
+        # We pass the 'weights' array to the builder function
+        A = build_adj_matrix(src, dst, weights, n_nodes)
 
+        # Step 3: Prepare personalization vector (Fraud Seeds)
+        # Identify nodes labeled as fraud (label=1)
         fraud_seeds = [node for node, lab in labels.items() if lab == 1]
         p = make_personalization_vector(n_nodes, fraud_seeds)
 
+        # Step 4: Run the algorithm
         result = personalized_pagerank(
             A,
             alpha=alpha,
@@ -130,13 +139,16 @@ class WizardApp(tk.Tk):
             personalize=p,
         )
 
+        # Handle result unpacking (in case future implementations return tuples)
         if isinstance(result, tuple):
             scores = result[0]
         else:
             scores = result
 
+        # Step 5: Evaluate Precision@50
         prec50 = precision_at_k(scores, labels, k=50)
 
+        # Step 6: Update state with results
         self.state.scores = scores
         self.state.labels = labels
         self.state.precision_at_50 = prec50
