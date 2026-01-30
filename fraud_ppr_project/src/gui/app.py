@@ -1,3 +1,4 @@
+# gui/app.py
 from __future__ import annotations
 
 import tkinter as tk
@@ -78,7 +79,7 @@ class WizardApp(tk.Tk):
             build_about_page(frame, app=self)
         elif index == 6:
             build_visualization_page(frame, app=self)
-            
+
     def show_page(self, index: int) -> None:
     # برای Results و Visualization همیشه ریفرش کن
         if index in (3, 6) and index in self.frames:
@@ -107,7 +108,7 @@ class WizardApp(tk.Tk):
             raise ValueError("No dataset selected")
 
         # print("DEBUG run_ppr data_path:", self.state.data_path)
-        
+
         src, dst, n_nodes, labels = load_transactions(self.state.data_path)
         # print("DEBUG shapes:", type(src), src.shape, type(dst), dst.shape, n_nodes, len(labels))
 
@@ -143,7 +144,7 @@ class WizardApp(tk.Tk):
         self.state.labels = labels
         self.state.precision_at_50 = prec50
 
-        
+
         # print("DEBUG saved scores len:", len(scores), "labels len:", len(labels), "prec50:", prec50)
 
 

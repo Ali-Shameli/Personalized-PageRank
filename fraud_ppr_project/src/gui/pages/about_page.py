@@ -1,3 +1,4 @@
+# src/gui/pages/about_page.py
 from __future__ import annotations
 
 import webbrowser

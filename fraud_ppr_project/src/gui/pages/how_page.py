@@ -1,3 +1,4 @@
+# src/gui/pages/how_page.py
 from __future__ import annotations
 
 from tkinter import ttk

@@ -1,3 +1,4 @@
+# src/gui/pages/run_page.py
 from __future__ import annotations
 
 import tkinter as tk
@@ -65,7 +66,7 @@ def build_run_page(frame: ttk.Frame, app) -> None:
     )
     status_label.grid(row=3, column=0, columnspan=3, sticky="we", padx=24, pady=(8, 0))
 
-    
+
     def on_run() -> None:
         if not app.state.data_path:
             status_label.configure(text="No dataset selected on previous step.")
