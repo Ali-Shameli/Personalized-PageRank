@@ -86,6 +86,13 @@ def build_load_page(frame: ttk.Frame, app) -> None:
     browse_btn = ttk.Button(custom_frame, text="Browse…", command=browse_file)
     browse_btn.grid(row=0, column=2, sticky="we", padx=(0, 12), pady=(8, 8))
 
+    manual_btn = ttk.Button(
+        frame,  # یا custom_frame
+        text="Enter Graph Manually",
+        command=lambda: app.show_page(7),  # رفتن به صفحه جدید
+    )
+    manual_btn.grid(row=4, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 12))
+
     # ---- دکمه‌های پایین ----
     button_bar = ttk.Frame(frame)
     button_bar.grid(row=5, column=0, columnspan=3, sticky="e", padx=24, pady=24)
