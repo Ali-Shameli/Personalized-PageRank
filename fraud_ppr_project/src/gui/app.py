@@ -81,6 +81,8 @@ class WizardApp(tk.Tk):
             build_about_page(frame, app=self)
         elif index == 6:
             build_visualization_page(frame, app=self)
+        elif index == 7:
+            build_manual_page(frame, app=self)
 
     def show_page(self, index: int) -> None:
     # برای Results و Visualization همیشه ریفرش کن
