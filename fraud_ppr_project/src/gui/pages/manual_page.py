@@ -53,9 +53,6 @@ def build_manual_page(frame: ttk.Frame, app) -> None:
     seeds_entry.insert(0, "4, 5")
 
     def parse_and_submit():
-        """
-        Reads input, parses it using the logic module, and updates app state.
-        """
         raw_edges_text = text_area.get("1.0", "end").strip()
         raw_seeds_text = seeds_entry.get().strip()
 
@@ -64,24 +61,33 @@ def build_manual_page(frame: ttk.Frame, app) -> None:
             return
 
         try:
-            # Delegate the heavy lifting to the parser module
-            # This returns the exact same 6-element tuple structure as load_transactions
             results = parse_manual_data(raw_edges_text, raw_seeds_text)
 
-            # Update the Application State
             app.state.data_source = "manual"
             app.state.manual_data = results
 
-            # Print for debugging
             n_nodes = results[3]
             print(f"Manual data parsed successfully. Total nodes: {n_nodes}")
 
-            # Navigate to the 'Run Analysis' page (Index 2)
             app.show_page(2)
 
         except ValueError as e:
-            # Display parsing errors (e.g., non-numeric input) to the user
             messagebox.showerror("Parsing Error", str(e))
         except Exception as e:
-            # Catch unexpected errors
             messagebox.showerror("Error", f"An unexpected error occurred: {e}")
+
+    btn_bar = ttk.Frame(frame)
+    btn_bar.grid(row=4, column=0, sticky="e", padx=24, pady=24)
+
+    ttk.Button(
+        btn_bar,
+        text="Back",
+        command=lambda: app.show_page(1)
+    ).pack(side="left", padx=8)
+
+    ttk.Button(
+        btn_bar,
+        text="Next",
+        style="Nav.TButton",
+        command=parse_and_submit
+    ).pack(side="left")
