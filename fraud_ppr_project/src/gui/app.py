@@ -30,6 +30,7 @@ class AppState:
         self.scores = None          # np.array
         self.labels = None          # dict
         self.precision_at_50 = None # float
+        self.reverse_map = None
 
 
 class WizardApp(tk.Tk):
@@ -107,20 +108,20 @@ class WizardApp(tk.Tk):
         if not self.state.data_path:
             raise ValueError("No dataset selected")
 
-        # print("DEBUG run_ppr data_path:", self.state.data_path)
+        # Important change: Retrieve reverse_map from the loader
+        src, dst, n_nodes, labels, rev_map = load_transactions(self.state.data_path)
 
-        src, dst, n_nodes, labels = load_transactions(self.state.data_path)
-        # print("DEBUG shapes:", type(src), src.shape, type(dst), dst.shape, n_nodes, len(labels))
+        # Store in state to use for displaying results
+        self.state.reverse_map = rev_map
+
+        # Print for verification
+        print(f"Graph loaded: {n_nodes} nodes (Compact Mode)")
 
         A = build_adj_matrix(src, dst, n_nodes)
-        # print("DEBUG A shape:", A.shape, "nnz:", A.nnz)
 
         fraud_seeds = [node for node, lab in labels.items() if lab == 1]
-        # print("DEBUG fraud_seeds length:", len(fraud_seeds))
-
         p = make_personalization_vector(n_nodes, fraud_seeds)
 
-        # print("DEBUG: before personalized_pagerank")
         result = personalized_pagerank(
             A,
             alpha=alpha,
@@ -128,24 +129,18 @@ class WizardApp(tk.Tk):
             tol=tol,
             personalize=p,
         )
-        # اگر فقط یک آرایه برگرداند، همان را بگیر؛ اگر tuple بود، جزء اولش را بگیر
+
         if isinstance(result, tuple):
             scores = result[0]
         else:
             scores = result
-        # print("DEBUG: after personalized_pagerank, before precision_at_k")
-        # print("DEBUG type(scores):", type(scores))
-        # print("DEBUG scores shape / first element:", getattr(scores, "shape", None), scores[0] if hasattr(scores, "__getitem__") else None)
 
         prec50 = precision_at_k(scores, labels, k=50)
-        # print("DEBUG: after precision_at_k")
 
         self.state.scores = scores
         self.state.labels = labels
         self.state.precision_at_50 = prec50
 
-
-        # print("DEBUG saved scores len:", len(scores), "labels len:", len(labels), "prec50:", prec50)
 
 
 def run_app() -> None:

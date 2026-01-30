@@ -80,6 +80,3 @@ def load_transactions(path: str) -> Tuple[np.ndarray, np.ndarray, int, Dict[int,
         # Since IDs are mapped (0 to N-1), the matrix is built compactly and correctly
         A = sparse.csr_matrix((data, (src, dst)), shape=(n_nodes, n_nodes))
         return A
-
-
-
