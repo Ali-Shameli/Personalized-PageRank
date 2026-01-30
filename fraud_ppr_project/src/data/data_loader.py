@@ -67,16 +67,16 @@ def load_transactions(path: str) -> Tuple[np.ndarray, np.ndarray, int, Dict[int,
 
         return mapped_src, mapped_dst, n_nodes, mapped_labels, reverse_map
 
-    def build_adj_matrix(
-            src: np.ndarray,
-            dst: np.ndarray,
-            n_nodes: int,
-    ) -> sparse.csr_matrix:
-        """Build adjacency matrix from MAPPED indices."""
-        if src.shape != dst.shape:
-            raise ValueError("src and dst must have the same shape")
+def build_adj_matrix(
+        src: np.ndarray,
+        dst: np.ndarray,
+        n_nodes: int,
+) -> sparse.csr_matrix:
+    """Build adjacency matrix from MAPPED indices."""
+    if src.shape != dst.shape:
+        raise ValueError("src and dst must have the same shape")
 
-        data = np.ones(len(src), dtype=np.float64)
-        # Since IDs are mapped (0 to N-1), the matrix is built compactly and correctly
-        A = sparse.csr_matrix((data, (src, dst)), shape=(n_nodes, n_nodes))
-        return A
+    data = np.ones(len(src), dtype=np.float64)
+    # Since IDs are mapped (0 to N-1), the matrix is built compactly and correctly
+    A = sparse.csr_matrix((data, (src, dst)), shape=(n_nodes, n_nodes))
+    return A
