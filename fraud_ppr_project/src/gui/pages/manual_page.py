@@ -43,3 +43,11 @@ def build_manual_page(frame: ttk.Frame, app) -> None:
 
     example_text = "1, 2, 50.0\n2, 3, 10.5\n3, 1, 2.0\n4, 2, 100.0\n5, 5, 10.0"
     text_area.insert("1.0", example_text)
+
+    seed_frame = ttk.LabelFrame(frame, text="Fraud Seeds (Known Fraudulent Node IDs)")
+    seed_frame.grid(row=3, column=0, sticky="we", padx=24, pady=(0, 12))
+
+    seeds_entry = ttk.Entry(seed_frame)
+    seeds_entry.grid(row=0, column=0, sticky="we", padx=12, pady=12)
+
+    seeds_entry.insert(0, "4, 5")
