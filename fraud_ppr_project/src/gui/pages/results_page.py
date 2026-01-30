@@ -139,19 +139,32 @@ def build_results_page(frame: ttk.Frame, app) -> None:
         top_display = order[:n_rows]
 
 
+        # Retrieve the reverse map from the app state
+        # Use getattr to avoid errors if reverse_map is not set yet
+        rev_map = getattr(app.state, "reverse_map", None)
+
         for idx, node in enumerate(top_display, start=1):
             score = float(scores[node])
             lab = int(labels.get(int(node), 0))
-            row_values = (idx, int(node), score, lab)
+
+            # Translate internal index to real node ID using reverse_map
+            # If map exists, look it up; otherwise fallback to internal index
+            real_node_id = rev_map[int(node)] if rev_map else int(node)
+
+            # Use real_node_id for export data
+            row_values = (idx, real_node_id, score, lab)
             current_rows.append(row_values)
 
             tags = ("fraud",) if lab == 1 else ()
+
+            # Display real_node_id in the GUI table
             tree.insert(
                 "",
                 "end",
-                values=(idx, int(node), f"{score:.6f}", lab),
+                values=(idx, real_node_id, f"{score:.6f}", lab),
                 tags=tags,
             )
+
 
         # Precision@K
         from src.evaluation.metrics import precision_at_k
