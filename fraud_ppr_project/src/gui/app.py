@@ -107,7 +107,9 @@ class WizardApp(tk.Tk):
             "Fraud Detection via Personalized PageRank.\nCourse project.",
         )
 
-    def run_ppr(self, alpha: float, max_iter: int, tol: float) -> None:
+    def run_ppr(self, alpha: float, max_iter: int, tol: float, 
+            weighted: bool = True, algorithm: str = "power",
+            num_walks: int = None, max_steps: int = None) -> None:
         """
         Executes the Personalized PageRank algorithm.
         Handles data loading (from manual entry or file), matrix construction,
@@ -130,50 +132,75 @@ class WizardApp(tk.Tk):
             src, dst, weights, n_nodes, labels, rev_map = load_transactions(self.state.data_path)
             print(f"Graph loaded from file: {self.state.data_path}. Total Nodes: {n_nodes}")
 
-        # --- Step 2: Store Metadata ---
+        # --- Step 2: Handle weighted/unweighted mode ---
+        if not weighted:
+            print("Running in UNWEIGHTED mode: all edge weights set to 1.0")
+            weights = np.ones_like(weights, dtype=float)  # همه وزن‌ها = ۱
+        else:
+            print("Running in WEIGHTED mode: using original edge weights")
+
+        # --- Step 3: Store Metadata ---
         # Save the reverse mapping dictionary to the state.
         # This is crucial for the Results Page to display real Node IDs instead of internal indices.
         self.state.reverse_map = rev_map
 
-        # --- Step 3: Build Adjacency Matrix ---
+        # --- Step 4: Build Adjacency Matrix ---
         # Build the sparse weighted adjacency matrix
         A = build_adj_matrix(src, dst, weights, n_nodes)
 
-        # --- Step 4: Prepare Personalization Vector ---
+        # --- Step 5: Prepare Personalization Vector ---
         # Identify seed nodes (confirmed fraudsters) from the labels dictionary
         fraud_seeds = [node for node, lab in labels.items() if lab == 1]
 
         # Create the personalization vector (distribution) based on seeds
         p = make_personalization_vector(n_nodes, fraud_seeds)
 
-        # --- Step 5: Run the Algorithm ---
-        print(f"Starting PPR execution (alpha={alpha}, max_iter={max_iter})...")
-        result = personalized_pagerank(
-            A,
-            alpha=alpha,
-            max_iter=max_iter,
-            tol=tol,
-            personalize=p,
-        )
-
+        # --- Step 6: Run the Algorithm ---
+        print(f"Starting PPR execution (algorithm={algorithm}, alpha={alpha})...")
+        
+        if algorithm == "power":
+            # Use Power iteration algorithm
+            from src.algorithms.ppr_power import personalized_pagerank as ppr_power
+            result = ppr_power(
+                A,
+                alpha=alpha,
+                max_iter=max_iter,
+                tol=tol,
+                personalize=p,
+            )
+        elif algorithm == "monte_carlo":
+            # Use Monte Carlo algorithm
+            from src.algorithms.ppr_monte_carlo import personalized_pagerank_monte_carlo
+            # Note: Monte Carlo parameters may be different
+            result = personalized_pagerank_monte_carlo(
+                A,
+                alpha=alpha,
+                personalize=p,
+                # These parameters should come from GUI
+                num_walks= num_walks,  
+                max_steps= max_steps
+            )
+        else:
+            raise ValueError(f"Unknown algorithm: {algorithm}")
+        
         # Unpack the result (some implementations return a tuple of scores and iterations)
         if isinstance(result, tuple):
             scores = result[0]
         else:
             scores = result
 
-        # --- Step 6: Calculate Metrics ---
+        # --- Step 7: Calculate Metrics ---
         # Calculate Precision@50 to evaluate performance (if ground truth labels exist)
         prec50 = precision_at_k(scores, labels, k=50)
 
-        # --- Step 7: Update Application State ---
+        # --- Step 8: Update Application State ---
         # Store results in the state to be accessed by the Results Page
         self.state.scores = scores
         self.state.labels = labels
         self.state.precision_at_50 = prec50
+        self.state.weighted = weighted  # Store the mode for reference
 
         print("Analysis completed successfully.")
-
 
 
 def run_app() -> None:
