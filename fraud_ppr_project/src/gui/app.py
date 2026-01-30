@@ -109,31 +109,45 @@ class WizardApp(tk.Tk):
 
     def run_ppr(self, alpha: float, max_iter: int, tol: float) -> None:
         """
-        Execute the Personalized PageRank algorithm.
-        This method orchestrates data loading, matrix building, and algorithm execution.
+        Executes the Personalized PageRank algorithm.
+        Handles data loading (from manual entry or file), matrix construction,
+        and result calculation.
         """
-        if not self.state.data_path:
-            raise ValueError("No dataset selected")
 
-        # Step 1: Load data
-        # Note: We now unpack 6 return values, including 'weights' and 'rev_map'
-        src, dst, weights, n_nodes, labels, rev_map = load_transactions(self.state.data_path)
+        # --- Step 1: Determine Data Source and Load Data ---
+        if self.state.data_source == "manual":
+            # Retrieve pre-parsed data directly from the application state (RAM)
+            # This data was processed in the Manual Page
+            src, dst, weights, n_nodes, labels, rev_map = self.state.manual_data
+            print(f"Using Manually Entered Data. Total Nodes: {n_nodes}")
 
-        # Store the reverse map in the app state so the Results Page can use it later
+        else:
+            # Default behavior: Load from the selected CSV file
+            if not self.state.data_path:
+                raise ValueError("No dataset selected. Please go back and select a file.")
+
+            # Load and map the data using the data loader module
+            src, dst, weights, n_nodes, labels, rev_map = load_transactions(self.state.data_path)
+            print(f"Graph loaded from file: {self.state.data_path}. Total Nodes: {n_nodes}")
+
+        # --- Step 2: Store Metadata ---
+        # Save the reverse mapping dictionary to the state.
+        # This is crucial for the Results Page to display real Node IDs instead of internal indices.
         self.state.reverse_map = rev_map
 
-        print(f"Graph loaded successfully: {n_nodes} nodes (Weighted & Mapped Mode)")
-
-        # Step 2: Build the weighted adjacency matrix
-        # We pass the 'weights' array to the builder function
+        # --- Step 3: Build Adjacency Matrix ---
+        # Build the sparse weighted adjacency matrix
         A = build_adj_matrix(src, dst, weights, n_nodes)
 
-        # Step 3: Prepare personalization vector (Fraud Seeds)
-        # Identify nodes labeled as fraud (label=1)
+        # --- Step 4: Prepare Personalization Vector ---
+        # Identify seed nodes (confirmed fraudsters) from the labels dictionary
         fraud_seeds = [node for node, lab in labels.items() if lab == 1]
+
+        # Create the personalization vector (distribution) based on seeds
         p = make_personalization_vector(n_nodes, fraud_seeds)
 
-        # Step 4: Run the algorithm
+        # --- Step 5: Run the Algorithm ---
+        print(f"Starting PPR execution (alpha={alpha}, max_iter={max_iter})...")
         result = personalized_pagerank(
             A,
             alpha=alpha,
@@ -142,19 +156,23 @@ class WizardApp(tk.Tk):
             personalize=p,
         )
 
-        # Handle result unpacking (in case future implementations return tuples)
+        # Unpack the result (some implementations return a tuple of scores and iterations)
         if isinstance(result, tuple):
             scores = result[0]
         else:
             scores = result
 
-        # Step 5: Evaluate Precision@50
+        # --- Step 6: Calculate Metrics ---
+        # Calculate Precision@50 to evaluate performance (if ground truth labels exist)
         prec50 = precision_at_k(scores, labels, k=50)
 
-        # Step 6: Update state with results
+        # --- Step 7: Update Application State ---
+        # Store results in the state to be accessed by the Results Page
         self.state.scores = scores
         self.state.labels = labels
         self.state.precision_at_50 = prec50
+
+        print("Analysis completed successfully.")
 
 
 
