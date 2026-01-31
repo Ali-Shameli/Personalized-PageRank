@@ -20,6 +20,7 @@ from .pages.how_page import build_how_page      # جدید
 from .pages.about_page import build_about_page  # جدید
 from .theme import apply_dark_theme
 from .pages.visualization_page import build_visualization_page
+from .pages.add_edge_page import build_add_edge_page
 
 
 
@@ -83,6 +84,8 @@ class WizardApp(tk.Tk):
             build_visualization_page(frame, app=self)
         elif index == 7:
             build_manual_page(frame, app=self)
+        elif index == 8:
+            build_add_edge_page(frame, app=self)
 
     def show_page(self, index: int) -> None:
     # برای Results و Visualization همیشه ریفرش کن
