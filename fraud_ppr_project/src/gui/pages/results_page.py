@@ -4,6 +4,7 @@ from __future__ import annotations
 import csv
 import os
 import numpy as np
+import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 
@@ -233,20 +234,35 @@ def build_results_page(frame: ttk.Frame, app) -> None:
     )
     back_btn.pack(side="left", padx=(0, 8))
 
-    viz_btn = ttk.Button(
-    bottom_bar,
-    text="Visualization",
-    command=lambda: app.show_page(6),  # یا هر ایندکسی که برای صفحه نمودار گذاشتی
-)
-    viz_btn.pack(side="left", padx=(0, 8))
-
-
-    export_btn = ttk.Button(
+    # ایجاد Menubutton
+    action_btn = ttk.Menubutton(
         bottom_bar,
-        text="Export CSV…",
-        command=export_csv,
+        text="Actions ▼",
+        style="Nav.TButton",  # اگر style داری
     )
-    export_btn.pack(side="left", padx=(0, 8))
+    action_btn.pack(side="left", padx=(0, 8))
+
+    # ایجاد منو
+    action_menu = tk.Menu(action_btn, tearoff=0)
+    action_btn["menu"] = action_menu
+
+    # آیتم‌های منو
+    action_menu.add_command(
+        label="📊 Visualization",
+        command=lambda: app.show_page(6)  # صفحه visualization
+    )
+
+    action_menu.add_command(
+        label="💾 Export CSV",
+        command=export_csv
+    )
+
+    action_menu.add_separator()  # خط جداکننده
+
+    action_menu.add_command(
+        label="➕ Add New Edge",
+        command=lambda: app.show_page(8)  # صفحه add_edge (ایندکس جدید)
+    )
 
     close_btn = ttk.Button(
         bottom_bar,
