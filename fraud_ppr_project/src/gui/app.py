@@ -204,6 +204,15 @@ class WizardApp(tk.Tk):
         self.state.labels = labels
         self.state.precision_at_50 = prec50
         self.state.weighted = weighted  # Store the mode for reference
+        self.state.algorithm = algorithm
+
+        # === NEW: Store data for incremental updates ===
+        self.state.adj_matrix = A  # CSR sparse matrix
+        self.state.personalization = p  # personalization vector
+        self.state.alpha = alpha  # damping factor
+        self.state.compact_to_real = rev_map  # reverse mapping
+        self.state.real_to_compact = {v: k for k, v in rev_map.items()}  # forward mapping
+
 
         print("Analysis completed successfully.")
 
