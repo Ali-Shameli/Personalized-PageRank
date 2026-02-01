@@ -212,7 +212,7 @@ class WizardApp(tk.Tk):
         self.state.compact_to_real = rev_map  # reverse mapping
         self.state.real_to_compact = {v: k for k, v in rev_map.items()}  # forward mapping
 
-      def run_incremental_ppr(self, new_edges):
+    def run_incremental_ppr(self, new_edges):
         """
         new_edges: list of (real_src, real_dst, weight)
         Note: The input edges use REAL node IDs (from UI).
@@ -258,7 +258,7 @@ class WizardApp(tk.Tk):
             new_adj, new_scores = update_ppr_incremental(
                 adj_matrix=self.state.adj_matrix,
                 old_scores=self.state.scores,
-                personalization_dict=self.state.personalization,
+                personalization_vec=self.state.personalization,
                 alpha=getattr(self.state, 'alpha', 0.85),
                 new_edges=mapped_edges
             )
@@ -272,8 +272,7 @@ class WizardApp(tk.Tk):
             messagebox.showinfo("Success", f"Updated scores with {len(new_edges)} new edge(s).")
 
         except Exception as e:
-            messagebox.showerror("Error", f"Incremental update failed:
-{e}")
+            messagebox.showerror("Error", f"Incremental update failed:{e}")
             
         except Exception as e:
             messagebox.showerror("Error", f"Incremental update failed:{e}")
