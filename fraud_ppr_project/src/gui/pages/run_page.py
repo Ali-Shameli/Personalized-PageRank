@@ -1,3 +1,4 @@
+# src/gui/pages/run_page.py
 from __future__ import annotations
 
 import tkinter as tk
@@ -6,12 +7,14 @@ from tkinter import ttk
 
 def build_run_page(frame: ttk.Frame, app) -> None:
     """Page 2: configure and run Personalized PageRank."""
+    # Grid layout configuration
     for c in range(3):
         frame.columnconfigure(c, weight=1)
-    for r in range(8):  # افزایش به 8 ردیف
+    for r in range(6):  # Six fixed rows
         frame.rowconfigure(r, weight=0)
-    frame.rowconfigure(8, weight=1)
+    frame.rowconfigure(6, weight=1)  # Expandable spacer row
 
+    # Page title
     title = ttk.Label(
         frame,
         text="2. Configure and run analysis",
@@ -20,10 +23,12 @@ def build_run_page(frame: ttk.Frame, app) -> None:
     )
     title.grid(row=0, column=0, columnspan=3, sticky="we", padx=24, pady=(24, 8))
 
+    # Dataset information display
     if app.state.data_source == "manual":
         data_info = "manual"
     else:
         data_info = app.state.data_path or "No dataset selected"
+    
     data_label = ttk.Label(
         frame,
         text=f"Selected dataset: {data_info}",
@@ -33,7 +38,7 @@ def build_run_page(frame: ttk.Frame, app) -> None:
     )
     data_label.grid(row=1, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 12))
 
-    # ---- نوع گراف ----
+    # Graph Type Selection Frame
     graph_type_frame = ttk.LabelFrame(frame, text="Graph type")
     graph_type_frame.grid(row=2, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 12))
     
@@ -62,7 +67,7 @@ def build_run_page(frame: ttk.Frame, app) -> None:
     )
     note_label.pack(side="left", padx=8, pady=8)
 
-    # ---- الگوریتم ----
+    # Algorithm Selection Frame
     algorithm_frame = ttk.LabelFrame(frame, text="Algorithm")
     algorithm_frame.grid(row=3, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 12))
     
@@ -84,21 +89,21 @@ def build_run_page(frame: ttk.Frame, app) -> None:
     )
     monte_rb.pack(side="left", padx=12, pady=8)
 
-    # ---- کانتینر دینامیک برای پارامترها ----
+    # Dynamic Parameters Container
     params_container = ttk.Frame(frame)
     params_container.grid(row=4, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 12))
 
-    # زیرفریم برای پارامترهای Power iteration
+    # Power iteration parameters frame
     power_params_frame = ttk.LabelFrame(params_container, text="Parameters for Power iteration")
     for c in range(4):
         power_params_frame.columnconfigure(c, weight=1)
 
-    # زیرفریم برای پارامترهای Monte Carlo
+    # Monte Carlo parameters frame
     monte_params_frame = ttk.LabelFrame(params_container, text="Parameters for Monte Carlo")
     for c in range(4):
         monte_params_frame.columnconfigure(c, weight=1)
 
-    # ---- متغیرهای پارامترها ----
+    # Parameter variables
     alpha_var = tk.DoubleVar(value=0.85)
     max_iter_var = tk.IntVar(value=100)
     tol_var = tk.DoubleVar(value=1e-6)
@@ -106,75 +111,81 @@ def build_run_page(frame: ttk.Frame, app) -> None:
     walk_length_var = tk.IntVar(value=50)
 
     def setup_power_params():
-        """ایجاد ویجت‌های پارامترهای Power iteration"""
-        # پاک کردن قبلی (اگر وجود داشت)
+        """Create Power iteration parameter widgets."""
+        # Clear previous widgets
         for widget in power_params_frame.winfo_children():
             widget.destroy()
         
+        # Damping factor (alpha)
         ttk.Label(power_params_frame, text="Damping factor (alpha):").grid(
             row=0, column=0, sticky="w", padx=12, pady=(8,4))
         ttk.Entry(power_params_frame, textvariable=alpha_var).grid(
             row=0, column=1, sticky="we", padx=(0,12), pady=(8,4))
         
+        # Maximum iterations
         ttk.Label(power_params_frame, text="Max iterations:").grid(
             row=1, column=0, sticky="w", padx=12, pady=4)
         ttk.Entry(power_params_frame, textvariable=max_iter_var).grid(
             row=1, column=1, sticky="we", padx=(0,12), pady=4)
         
+        # Convergence tolerance
         ttk.Label(power_params_frame, text="Tolerance (L1):").grid(
             row=2, column=0, sticky="w", padx=12, pady=(4,8))
         ttk.Entry(power_params_frame, textvariable=tol_var).grid(
             row=2, column=1, sticky="we", padx=(0,12), pady=(4,8))
 
     def setup_monte_params():
-        """ایجاد ویجت‌های پارامترهای Monte Carlo"""
-        # پاک کردن قبلی (اگر وجود داشت)
+        """Create Monte Carlo parameter widgets."""
+        # Clear previous widgets
         for widget in monte_params_frame.winfo_children():
             widget.destroy()
         
+        # Damping factor (alpha)
         ttk.Label(monte_params_frame, text="Damping factor (alpha):").grid(
             row=0, column=0, sticky="w", padx=12, pady=(8,4))
         ttk.Entry(monte_params_frame, textvariable=alpha_var).grid(
             row=0, column=1, sticky="we", padx=(0,12), pady=(8,4))
         
+        # Number of random walks
         ttk.Label(monte_params_frame, text="Number of random walks:").grid(
             row=1, column=0, sticky="w", padx=12, pady=4)
         ttk.Entry(monte_params_frame, textvariable=num_walks_var).grid(
             row=1, column=1, sticky="we", padx=(0,12), pady=4)
         
+        # Maximum walk length
         ttk.Label(monte_params_frame, text="Max walk length:").grid(
             row=2, column=0, sticky="w", padx=12, pady=(4,8))
         ttk.Entry(monte_params_frame, textvariable=walk_length_var).grid(
             row=2, column=1, sticky="we", padx=(0,12), pady=(4,8))
 
     def show_power_params():
-        """نمایش پارامترهای Power iteration"""
+        """Display Power iteration parameters."""
         monte_params_frame.pack_forget()
         power_params_frame.pack(fill="x", expand=True)
         setup_power_params()
 
     def show_monte_params():
-        """نمایش پارامترهای Monte Carlo"""
+        """Display Monte Carlo parameters."""
         power_params_frame.pack_forget()
         monte_params_frame.pack(fill="x", expand=True)
         setup_monte_params()
 
-    # ---- تنظیم اولیه ----
+    # Initial setup
     setup_power_params()
     setup_monte_params()
-    show_power_params()  # نمایش پیش‌فرض
+    show_power_params()  # Default to Power iteration
 
-    # ---- اتصال رویداد تغییر الگوریتم ----
+    # Algorithm change event handler
     algorithm_var.trace_add("write", lambda *args: on_algorithm_change())
 
     def on_algorithm_change():
-        """هنگام تغییر الگوریتم"""
+        """Handle algorithm selection change."""
         if algorithm_var.get() == "power":
             show_power_params()
         else:
             show_monte_params()
 
-    # ---- ناحیه وضعیت / لاگ ----
+    # Status/Log Area
     status_label = ttk.Label(
         frame,
         text="Press Run to start the analysis.",
@@ -182,14 +193,16 @@ def build_run_page(frame: ttk.Frame, app) -> None:
         anchor="w",
         justify="left",
     )
-    status_label.grid(row=5, column=0, columnspan=3, sticky="we", padx=24, pady=(8, 0))
+    status_label.grid(row=5, column=0, columnspan=3, sticky="we", padx=24, pady=(8, 20))
 
-    # ---- تابع اجرا ----
     def on_run() -> None:
-        if not app.state.data_path and app.state.data_source !="manual":
+        """Execute PPR analysis with configured parameters."""
+        # Validate dataset selection
+        if not app.state.data_path and app.state.data_source != "manual":
             status_label.configure(text="No dataset selected on previous step.")
             return
 
+        # Parse and validate parameters
         try:
             algorithm = algorithm_var.get()
             weighted = (graph_type_var.get() == "weighted")
@@ -214,23 +227,24 @@ def build_run_page(frame: ttk.Frame, app) -> None:
             status_label.configure(text="Invalid parameter values.")
             return
 
+        # Execute analysis
         status_label.configure(text="Running Personalized PageRank…")
 
         try:
             app.run_ppr(**params)
             status_label.configure(text="Analysis finished. Showing results…")
-            app.show_page(3)
+            app.show_page(3)  # Navigate to results page
         except Exception as e:
             status_label.configure(text=f"Error during analysis: {e}")
 
-    # ---- دکمه‌های پایین ----
+    # Bottom Button Bar
     button_bar = ttk.Frame(frame)
-    button_bar.grid(row=7, column=0, columnspan=3, sticky="e", padx=24, pady=24)
+    button_bar.grid(row=6, column=0, columnspan=3, sticky="se", padx=24, pady=(0, 24))
 
     back_btn = ttk.Button(
         button_bar,
         text="Back",
-        command=lambda: app.show_page(1),
+        command=lambda: app.show_page(1),  # Return to previous page
     )
     back_btn.pack(side="left", padx=(0, 8))
 
