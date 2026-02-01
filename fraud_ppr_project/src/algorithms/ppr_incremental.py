@@ -1,64 +1,48 @@
 import numpy as np
 from scipy import sparse
-from src.algorithms.ppr_power import personalized_pagerank # فرض بر این است که این تابع را داری
+from src.algorithms.ppr_power import personalized_pagerank
 
-def update_ppr_incremental(adj_matrix, old_scores, personalization_dict, alpha, new_edges, tol=1e-6):
+def update_ppr_incremental(adj_matrix, old_scores, personalization_vec, alpha, new_edges, tol=1e-6):
     """
-    Update PPR efficiently using Warm Start (starting from old_scores).
-    
-    Parameters:
-    -----------
-    adj_matrix : csr_matrix (n x n) - Current adjacency matrix
-    old_scores : array (n,) - Previous PPR scores
-    personalization_dict : dict - {node_id: weight}
-    alpha : float - Damping factor
-    new_edges : list of (src, dst, weight)
-    
-    Returns:
-    --------
-    new_adj : csr_matrix - Updated adjacency matrix
-    new_scores : array - Updated PPR scores
+    Update PPR efficiently using Warm Start.
+    personalization_vec: np.array (P vector, not dict)
     """
-    # 1. تبدیل به lil برای ویرایش آسان
+    # 1. Update Adjacency
     A = adj_matrix.tolil()
     n = A.shape[0]
 
-    # محاسبه سایز جدید اگر نود جدید داشته باشیم
     max_node_idx = n - 1
     for s, d, w in new_edges:
         max_node_idx = max(max_node_idx, s, d)
-    
     new_n = max_node_idx + 1
 
-    # اگر گراف بزرگ شده، باید ریسایز کنیم
+    # Resize if needed
     if new_n > n:
         A.resize((new_n, new_n))
-        # پدینگ اسکورهای قدیمی با صفر
         old_scores = np.pad(old_scores, (0, new_n - n), 'constant')
+        # Pad personalization vector too! (important)
+        personalization_vec = np.pad(personalization_vec, (0, new_n - n), 'constant')
+        # Normalize p again just in case (though padding 0s keeps sum same)
+        if personalization_vec.sum() > 0:
+             personalization_vec /= personalization_vec.sum()
+        
         n = new_n
 
-    # 2. اعمال تغییرات یال‌ها
+    # Update edges
     for s, d, w in new_edges:
-        # اگر یال قبلاً بوده، می‌توانیم جمع کنیم یا جایگزین (اینجا جایگزین فرض شده)
-        # برای گراف بدون وزن (weight=1.0) هم همین کار می‌کند
         A[s, d] = w
 
     new_adj = A.tocsr()
 
-    # 3. ساخت بردار شخصی‌سازی با سایز جدید (اگر نود جدید اضافه شده)
-    # (power_iteration_sparse معمولاً دیکشنری می‌گیرد و خودش بردار می‌سازد،
-    # اما اگر بردار می‌گیرد باید اینجا هندل شود. فرض می‌کنیم دیکشنری می‌گیرد)
-    
-    # 4. اجرای Power Iteration با نقطه شروع گرم (Warm Start)
-    # نکته کلیدی: start_vec=old_scores باعث همگرایی بسیار سریع می‌شود.
-    new_scores = personalized_pagerank(
+    # 2. Warm Start Power Iteration
+    # Unpack tuple result!
+    new_scores, _, _ = personalized_pagerank(
         new_adj,
-        personalize=personalization_dict,  # دیکشنری سیدها
+        personalize=personalization_vec, # Now it's the padded array
         alpha=alpha,
         tol=tol,
-        max_iter=50,       # تعداد دور کمتر چون گرم شروع می‌کنیم
-        start_vec=old_scores  # <--- این پارامتر باید در power_iteration_sparse پشتیبانی شود
+        max_iter=50,
+        start_vec=old_scores
     )
 
-   
     return new_adj, new_scores
