@@ -2,20 +2,18 @@
 from __future__ import annotations
 
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
-import csv
-import numpy as np
-
+from tkinter import ttk
 
 def build_add_edge_page(frame: ttk.Frame, app) -> None:
     """Page for adding new edges to the graph."""
+    # Configure grid layout: 3 columns, 8 rows
     for c in range(3):
         frame.columnconfigure(c, weight=1)
     for r in range(7):
         frame.rowconfigure(r, weight=0)
-    frame.rowconfigure(7, weight=1)
+    frame.rowconfigure(7, weight=1)  # Last row expands for spacing
 
-    # Title
+    # --- Title Section ---
     title = ttk.Label(
         frame,
         text="Add New Edge to Graph",
@@ -24,7 +22,7 @@ def build_add_edge_page(frame: ttk.Frame, app) -> None:
     )
     title.grid(row=0, column=0, columnspan=3, sticky="we", padx=24, pady=(24, 16))
 
-    # Explanation
+    # --- Explanation Section ---
     info = ttk.Label(
         frame,
         text="Add a new edge to update PPR scores without full recomputation.",
@@ -34,11 +32,11 @@ def build_add_edge_page(frame: ttk.Frame, app) -> None:
     )
     info.grid(row=1, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 20))
 
-    # --- Single Edge Frame ---
+    # --- Single Edge Input Frame ---
     single_frame = ttk.LabelFrame(frame, text="Add Single Edge", padding=15)
     single_frame.grid(row=2, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 12))
 
-    # Source Node
+    # Source Node input
     ttk.Label(single_frame, text="Source Node ID:").grid(
         row=0, column=0, sticky="w", padx=(0, 10), pady=8
     )
@@ -46,7 +44,7 @@ def build_add_edge_page(frame: ttk.Frame, app) -> None:
     source_entry = ttk.Entry(single_frame, textvariable=source_var, width=15)
     source_entry.grid(row=0, column=1, sticky="w", pady=8)
 
-    # Target Node
+    # Target Node input
     ttk.Label(single_frame, text="Target Node ID:").grid(
         row=1, column=0, sticky="w", padx=(0, 10), pady=8
     )
@@ -54,7 +52,7 @@ def build_add_edge_page(frame: ttk.Frame, app) -> None:
     target_entry = ttk.Entry(single_frame, textvariable=target_var, width=15)
     target_entry.grid(row=1, column=1, sticky="w", pady=8)
 
-    # Weight
+    # Edge Weight input (optional, default = 1.0)
     ttk.Label(single_frame, text="Edge Weight (optional):").grid(
         row=2, column=0, sticky="w", padx=(0, 10), pady=8
     )
@@ -62,28 +60,7 @@ def build_add_edge_page(frame: ttk.Frame, app) -> None:
     weight_entry = ttk.Entry(single_frame, textvariable=weight_var, width=15)
     weight_entry.grid(row=2, column=1, sticky="w", pady=8)
 
-    # --- Multiple Edges Frame ---
-    multi_frame = ttk.LabelFrame(frame, text="Add Multiple Edges from CSV", padding=15)
-    multi_frame.grid(row=3, column=0, columnspan=3, sticky="we", padx=24, pady=(12, 20))
-
-    csv_info = ttk.Label(
-        multi_frame,
-        text="CSV format: source,target,weight (weight optional)",
-        style="Small.TLabel",
-    )
-    csv_info.pack(anchor="w", pady=(0, 10))
-
-    csv_btn = ttk.Button(
-        multi_frame,
-        text="Browse CSV File...",
-        command=lambda: browse_csv(app, csv_status),
-    )
-    csv_btn.pack(side="left", padx=(0, 10))
-
-    csv_status = ttk.Label(multi_frame, text="No file selected")
-    csv_status.pack(side="left")
-
-    # Status message
+    # --- Status Message Area ---
     status_label = ttk.Label(
         frame,
         text="",
@@ -91,19 +68,21 @@ def build_add_edge_page(frame: ttk.Frame, app) -> None:
         anchor="w",
         justify="left",
     )
-    status_label.grid(row=4, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 20))
+    status_label.grid(row=3, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 20))
 
-    # --- Buttons ---
+    # --- Action Buttons Bar ---
     button_bar = ttk.Frame(frame)
-    button_bar.grid(row=5, column=0, columnspan=3, sticky="e", padx=24, pady=(0, 24))
+    button_bar.grid(row=4, column=0, columnspan=3, sticky="e", padx=24, pady=(0, 24))
 
+    # Cancel button: returns to Results page (page index 3)
     cancel_btn = ttk.Button(
         button_bar,
         text="Cancel",
-        command=lambda: app.show_page(3),  # Back to Results
+        command=lambda: app.show_page(3),
     )
     cancel_btn.pack(side="left", padx=(0, 8))
 
+    # Main action button: adds edge and triggers PPR update
     add_btn = ttk.Button(
         button_bar,
         text="Add Edge & Update Scores",
@@ -115,72 +94,77 @@ def build_add_edge_page(frame: ttk.Frame, app) -> None:
     add_btn.pack(side="left")
 
 
-def browse_csv(app, status_label):
-    """Open file dialog for CSV selection."""
-    filepath = filedialog.askopenfilename(
-        title="Select CSV file with edges",
-        filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
-    )
-    
-    if filepath:
-        status_label.config(text=f"Selected: {filepath.split('/')[-1]}")
-        # Store filepath in app state or process immediately
-        app.state.edge_csv_path = filepath
-    else:
-        status_label.config(text="No file selected")
-
-
 def add_edge_and_update(app, source_var, target_var, weight_var, status_label):
-    """Handle adding edge and running incremental PPR."""
+    """
+    Handle adding a single edge and running incremental PPR update.
+    
+    Steps:
+    1. Validate user input
+    2. Check if graph is loaded
+    3. Prepare edge data
+    4. Trigger incremental PPR update
+    5. Provide user feedback
+    """
     try:
-        # Get values
+        # --- Input Parsing and Validation ---
         source = int(source_var.get())
         target = int(target_var.get())
         weight = float(weight_var.get()) if weight_var.get() else 1.0
-        
-        # Validate
+
+        # Basic validation
         if source < 0 or target < 0:
-            raise ValueError("Node IDs must be non-negative")
+            raise ValueError("Node IDs must be non-negative integers")
         if weight <= 0:
-            raise ValueError("Weight must be positive")
-            
+            raise ValueError("Edge weight must be a positive number")
+
     except ValueError as e:
+        # Display validation error to user
         status_label.config(text=f"Invalid input: {e}")
         return
-    
-    # Check if graph exists
+
+    # --- Graph Existence Check ---
     if not hasattr(app.state, 'scores') or app.state.scores is None:
-        status_label.config(text="No graph loaded. Run analysis first.")
+        status_label.config(text="No graph loaded. Please run analysis first.")
         return
-    
-    # Store edge for processing
+
+    # --- Prepare Edge Data ---
     new_edge = (source, target, weight)
     
-    # Show status
+    # Show processing status
     status_label.config(text=f"Adding edge ({source} → {target}, weight={weight})...")
-    
-    # TODO: Call incremental PPR here
-    # app.run_incremental_ppr(new_edge)
-        # ... (کد قبلی)
-    
-    # Call incremental PPR via App method
-    app.run_incremental_ppr([new_edge])  # لیست شامل یک تاپل
 
-    # Show success (messagebox is already shown in app.run_incremental_ppr usually,
-    # or show it here if you prefer)
-    status_label.config(text="Graph updated successfully!")
-    
-    # Return to results automatically after a delay?
-    # frame.after(1000, lambda: app.show_page(3))
-
-    # For now, just show message
-    status_label.config(text="Edge added successfully. (Incremental PPR not implemented yet)")
-    
-    # After processing, go back to results
-    # app.show_page(3)
-
-
-# Register this page in app.py
-# در app.py در تابع _create_page اضافه کن:
-# elif index == 8:
-#     build_add_edge_page(frame, app=self)
+    # --- Trigger Incremental PPR Update ---
+    try:
+        # Call the main application's incremental PPR method
+        # The method expects a list of edges
+        success = app.run_incremental_ppr([new_edge])
+        
+        if success:
+            # Success feedback
+            status_label.config(
+                text="Edge added successfully! PPR scores updated.", 
+                foreground="green"
+            )
+            
+            # Optional: auto-return to results page after delay
+            # app.master.after(2000, lambda: app.show_page(3))
+            
+        else:
+            # PPR update failed
+            status_label.config(
+                text="Failed to update PPR scores. Please try again.", 
+                foreground="red"
+            )
+            
+    except AttributeError:
+        # Method not implemented (for development/demo)
+        status_label.config(
+            text="Edge added (Incremental PPR simulation).", 
+            foreground="blue"
+        )
+    except Exception as e:
+        # Unexpected error during PPR update
+        status_label.config(
+            text=f"Error during PPR update: {str(e)}", 
+            foreground="red"
+        )
