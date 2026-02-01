@@ -161,7 +161,18 @@ def add_edge_and_update(app, source_var, target_var, weight_var, status_label):
     
     # TODO: Call incremental PPR here
     # app.run_incremental_ppr(new_edge)
+        # ... (کد قبلی)
     
+    # Call incremental PPR via App method
+    app.run_incremental_ppr([new_edge])  # لیست شامل یک تاپل
+
+    # Show success (messagebox is already shown in app.run_incremental_ppr usually,
+    # or show it here if you prefer)
+    status_label.config(text="Graph updated successfully!")
+    
+    # Return to results automatically after a delay?
+    # frame.after(1000, lambda: app.show_page(3))
+
     # For now, just show message
     status_label.config(text="Edge added successfully. (Incremental PPR not implemented yet)")
     
