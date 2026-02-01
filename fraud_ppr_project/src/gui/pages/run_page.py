@@ -183,7 +183,7 @@ def build_run_page(frame: ttk.Frame, app) -> None:
 
     # ---- تابع اجرا ----
     def on_run() -> None:
-        if not app.state.data_path:
+        if not app.state.data_path and app.state.data_source !="manual":
             status_label.configure(text="No dataset selected on previous step.")
             return
 
