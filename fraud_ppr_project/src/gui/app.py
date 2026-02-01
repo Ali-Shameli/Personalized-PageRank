@@ -88,7 +88,7 @@ class WizardApp(tk.Tk):
 
     def show_page(self, index: int) -> None:
     # برای Results و Visualization همیشه ریفرش کن
-        if index in (3, 6) and index in self.frames:
+        if index in (2, 3, 6) and index in self.frames:
             self.frames[index].destroy()
             del self.frames[index]
 
