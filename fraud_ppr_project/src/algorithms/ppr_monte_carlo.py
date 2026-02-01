@@ -2,7 +2,7 @@
 import numpy as np
 from scipy import sparse
 
-def personalized_pagerank_monte_carlo(A, alpha=0.85, personalize=None, num_walks=1000, max_steps=50):
+def personalized_pagerank_monte_carlo(A, alpha=0.15, personalize=None, num_walks=1000, max_steps=50):
     """
     Monte Carlo approximation of Personalized PageRank.
     

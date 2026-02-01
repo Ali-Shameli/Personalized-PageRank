@@ -104,7 +104,7 @@ def build_run_page(frame: ttk.Frame, app) -> None:
         monte_params_frame.columnconfigure(c, weight=1)
 
     # Parameter variables
-    alpha_var = tk.DoubleVar(value=0.85)
+    alpha_var = tk.DoubleVar(value=0.15)
     max_iter_var = tk.IntVar(value=100)
     tol_var = tk.DoubleVar(value=1e-6)
     num_walks_var = tk.IntVar(value=1000)

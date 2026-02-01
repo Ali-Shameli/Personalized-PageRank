@@ -17,7 +17,7 @@ def make_personalization_vector(n_nodes: int, fraud_seeds: Iterable[int]) -> np.
 
 def personalized_pagerank(
     A: sparse.spmatrix,
-    alpha: float = 0.85,
+    alpha: float = 0.15,
     max_iter: int = 100,
     tol: float = 1e-6,
     personalize: Optional[np.ndarray] = None,
