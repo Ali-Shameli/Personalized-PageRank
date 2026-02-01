@@ -256,13 +256,15 @@ def build_results_page(frame: ttk.Frame, app) -> None:
         label="💾 Export CSV",
         command=export_csv
     )
+    if app.state.last_algorithm != "monte_carlo":
+        action_menu.add_separator()  # خط جداکننده
 
-    action_menu.add_separator()  # خط جداکننده
+        action_menu.add_command(
+            label="➕ Add New Edge",
+            command=lambda: app.show_page(8)  # صفحه add_edge (ایندکس جدید)
+        )
 
-    action_menu.add_command(
-        label="➕ Add New Edge",
-        command=lambda: app.show_page(8)  # صفحه add_edge (ایندکس جدید)
-    )
+
 
     close_btn = ttk.Button(
         bottom_bar,

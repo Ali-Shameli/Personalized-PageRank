@@ -27,6 +27,8 @@ class AppState:
     def __init__(self) -> None:
         self.data_path: str | None = None
         self.data_source: str | None = None
+        self.self_algorithm: str | None = None
+
 
         self.scores = None          # np.array
         self.labels = None          # dict
@@ -161,6 +163,8 @@ class WizardApp(tk.Tk):
 
         # --- Step 6: Run the Algorithm ---
         print(f"Starting PPR execution (algorithm={algorithm}, alpha={alpha})...")
+
+        self.state.last_algorithm = algorithm
         
         if algorithm == "power":
             # Use Power iteration algorithm
