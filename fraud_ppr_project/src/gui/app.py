@@ -213,7 +213,43 @@ class WizardApp(tk.Tk):
         self.state.compact_to_real = rev_map  # reverse mapping
         self.state.real_to_compact = {v: k for k, v in rev_map.items()}  # forward mapping
 
+# در کلاس App (فایل app.py)
 
+    def run_incremental_ppr(self, new_edges):
+        """
+        new_edges: list of (src, dst, weight)
+        """
+        if self.state.scores is None or self.state.adj_matrix is None:
+            messagebox.showerror("Error", "No existing graph to update.")
+            return
+
+        from src.algorithms.ppr_incremental import update_ppr_incremental
+
+        try:
+            # فراخوانی الگوریتم جدید
+            new_adj, new_scores = update_ppr_incremental(
+                adj_matrix=self.state.adj_matrix,
+                old_scores=self.state.scores,
+                personalization_dict=self.state.personalization, # فرض: این را در state داری
+                alpha=0.85,  # یا مقداری که در state ذخیره کردی
+                new_edges=new_edges
+            )
+
+            # آپدیت State
+            self.state.adj_matrix = new_adj
+            self.state.scores = new_scores
+            
+            # (اختیاری) اگر نودهای جدید اضافه شدند، لیبل‌هایشان را 0 (unknown) بگذار
+            if len(new_scores) > len(self.state.labels):
+                # دیکشنری لیبل‌ها را آپدیت کن ولی چون دیکشنری است خودش هندل می‌شود
+                # فقط اگر لیستی داری باید حواست باشد.
+                pass
+
+            messagebox.showinfo("Success", f"Updated scores with {len(new_edges)} new edge(s).")
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Incremental update failed:
+{e}")
         print("Analysis completed successfully.")
 
 
