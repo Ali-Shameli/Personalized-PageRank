@@ -50,7 +50,7 @@ def build_about_page(frame: ttk.Frame, app) -> None:
     credits_text = (
         "Developed by:\n"
         "  - Ali Shameli\n"
-        "  - Shahriar Moqimi\n\n"
+        "  - Shahriyar Moqimi\n\n"
         "Course:\n"
         "  - Data Structures (DS) Project, Fall 2025\n\n"
         "Supervisor:\n"

@@ -10,9 +10,15 @@ def build_load_page(frame: ttk.Frame, app) -> None:
     """Page 1: choose sample data or browse custom CSV."""
     for c in range(3):
         frame.columnconfigure(c, weight=1)
-    for r in range(6):
-        frame.rowconfigure(r, weight=0)
-    frame.rowconfigure(6, weight=1)
+
+    frame.rowconfigure(0, weight=0)
+    frame.rowconfigure(1, weight=0)
+    frame.rowconfigure(2, weight=0)
+    frame.rowconfigure(3, weight=0)
+
+    frame.rowconfigure(4, weight=1)
+
+    frame.rowconfigure(5, weight=0)
 
     # ---- عنوان ----
     title = ttk.Label(
