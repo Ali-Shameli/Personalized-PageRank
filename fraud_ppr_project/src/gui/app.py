@@ -4,7 +4,6 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import ttk
 from typing import Dict
-
 import numpy as np
 
 from src.data.data_loader import load_transactions, build_adj_matrix
@@ -213,12 +212,13 @@ class WizardApp(tk.Tk):
         self.state.compact_to_real = rev_map  # reverse mapping
         self.state.real_to_compact = {v: k for k, v in rev_map.items()}  # forward mapping
 
-# در کلاس App (فایل app.py)
+    # در کلاس App (فایل app.py)
 
     def run_incremental_ppr(self, new_edges):
         """
         new_edges: list of (src, dst, weight)
         """
+        import tkinter.messagebox as messagebox  # ✅ این خط رو اضافه کن
         if self.state.scores is None or self.state.adj_matrix is None:
             messagebox.showerror("Error", "No existing graph to update.")
             return
@@ -244,13 +244,29 @@ class WizardApp(tk.Tk):
                 # دیکشنری لیبل‌ها را آپدیت کن ولی چون دیکشنری است خودش هندل می‌شود
                 # فقط اگر لیستی داری باید حواست باشد.
                 pass
-
+            
+            self.refresh_results_page()
             messagebox.showinfo("Success", f"Updated scores with {len(new_edges)} new edge(s).")
             
         except Exception as e:
-            messagebox.showerror("Error", f"Incremental update failed:
-{e}")
-        print("Analysis completed successfully.")
+            messagebox.showerror("Error", f"Incremental update failed:{e}")
+        
+    def refresh_results_page(self):
+        """رفرش صفحه نتایج"""
+        # پاک کردن صفحه نتایج اگر وجود دارد
+        if 3 in self.frames:
+            self.frames[3].destroy()
+            del self.frames[3]
+        
+        # ساخت مجدد صفحه
+        self._create_page(3)
+        
+        # نمایش صفحه
+        self.show_page(3)
+        
+        print("Results page refreshed successfully")
+        
+    print("Analysis completed successfully.")
 
 
 def run_app() -> None:

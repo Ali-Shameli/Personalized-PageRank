@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import sparse
-from src.algorithms.ppr_power import power_iteration_sparse  # فرض بر این است که این تابع را داری
+from src.algorithms.ppr_power import personalized_pagerank # فرض بر این است که این تابع را داری
 
 def update_ppr_incremental(adj_matrix, old_scores, personalization_dict, alpha, new_edges, tol=1e-6):
     """
@@ -51,13 +51,14 @@ def update_ppr_incremental(adj_matrix, old_scores, personalization_dict, alpha, 
     
     # 4. اجرای Power Iteration با نقطه شروع گرم (Warm Start)
     # نکته کلیدی: start_vec=old_scores باعث همگرایی بسیار سریع می‌شود.
-    new_scores = power_iteration_sparse(
+    new_scores = personalized_pagerank(
         new_adj,
-        personalization_vector=personalization_dict,  # دیکشنری سیدها
+        personalize=personalization_dict,  # دیکشنری سیدها
         alpha=alpha,
         tol=tol,
         max_iter=50,       # تعداد دور کمتر چون گرم شروع می‌کنیم
         start_vec=old_scores  # <--- این پارامتر باید در power_iteration_sparse پشتیبانی شود
     )
 
+   
     return new_adj, new_scores
