@@ -51,7 +51,7 @@ def personalized_pagerank_monte_carlo(A, alpha=0.85, personalize=None, num_walks
         for step in range(max_steps):
             scores[current] += 1
             
-            if np.random.random() < alpha:
+            if np.random.random() > alpha:
                 neighbors, probs = row_distributions[current]
                 if len(neighbors) > 0:
                     current = np.random.choice(neighbors, p=probs)
