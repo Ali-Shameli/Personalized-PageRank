@@ -6,14 +6,17 @@ from tkinter import ttk
 
 def build_add_edge_page(frame: ttk.Frame, app) -> None:
     """Page for adding new edges to the graph."""
-    # Configure grid layout: 3 columns, 8 rows
+    # Configure grid: 3 columns, only last row expands
     for c in range(3):
         frame.columnconfigure(c, weight=1)
-    for r in range(7):
-        frame.rowconfigure(r, weight=0)
-    frame.rowconfigure(7, weight=1)  # Last row expands for spacing
+    frame.rowconfigure(0, weight=0)  # Title
+    frame.rowconfigure(1, weight=0)  # Info
+    frame.rowconfigure(2, weight=0)  # Input frame
+    frame.rowconfigure(3, weight=0)  # Status
+    frame.rowconfigure(4, weight=1)  # Spacer (expands)
+    frame.rowconfigure(5, weight=0)  # Buttons (bottom)
 
-    # --- Title Section ---
+    # --- Title (row 0) ---
     title = ttk.Label(
         frame,
         text="Add New Edge to Graph",
@@ -22,7 +25,7 @@ def build_add_edge_page(frame: ttk.Frame, app) -> None:
     )
     title.grid(row=0, column=0, columnspan=3, sticky="we", padx=24, pady=(24, 16))
 
-    # --- Explanation Section ---
+    # --- Explanation (row 1) ---
     info = ttk.Label(
         frame,
         text="Add a new edge to update PPR scores without full recomputation.",
@@ -32,7 +35,7 @@ def build_add_edge_page(frame: ttk.Frame, app) -> None:
     )
     info.grid(row=1, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 20))
 
-    # --- Single Edge Input Frame ---
+    # --- Single Edge Input Frame (row 2) ---
     single_frame = ttk.LabelFrame(frame, text="Add Single Edge", padding=15)
     single_frame.grid(row=2, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 12))
 
@@ -60,7 +63,7 @@ def build_add_edge_page(frame: ttk.Frame, app) -> None:
     weight_entry = ttk.Entry(single_frame, textvariable=weight_var, width=15)
     weight_entry.grid(row=2, column=1, sticky="w", pady=8)
 
-    # --- Status Message Area ---
+    # --- Status Message (row 3) ---
     status_label = ttk.Label(
         frame,
         text="",
@@ -70,11 +73,14 @@ def build_add_edge_page(frame: ttk.Frame, app) -> None:
     )
     status_label.grid(row=3, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 20))
 
-    # --- Action Buttons Bar ---
+    # --- Spacer Frame (row 4, expands) ---
+    spacer = ttk.Frame(frame)
+    spacer.grid(row=4, column=0, columnspan=3, sticky="nswe")
+    
+    # --- Buttons at Bottom (row 5) ---
     button_bar = ttk.Frame(frame)
-    button_bar.grid(row=4, column=0, columnspan=3, sticky="e", padx=24, pady=(0, 24))
+    button_bar.grid(row=5, column=0, columnspan=3, sticky="e", padx=24, pady=(0, 24))
 
-    # Cancel button: returns to Results page (page index 3)
     cancel_btn = ttk.Button(
         button_bar,
         text="Cancel",
@@ -82,7 +88,6 @@ def build_add_edge_page(frame: ttk.Frame, app) -> None:
     )
     cancel_btn.pack(side="left", padx=(0, 8))
 
-    # Main action button: adds edge and triggers PPR update
     add_btn = ttk.Button(
         button_bar,
         text="Add Edge & Update Scores",
