@@ -212,13 +212,14 @@ class WizardApp(tk.Tk):
         self.state.compact_to_real = rev_map  # reverse mapping
         self.state.real_to_compact = {v: k for k, v in rev_map.items()}  # forward mapping
 
-    # در کلاس App (فایل app.py)
-
-    def run_incremental_ppr(self, new_edges):
+      def run_incremental_ppr(self, new_edges):
         """
-        new_edges: list of (src, dst, weight)
+        new_edges: list of (real_src, real_dst, weight)
+        Note: The input edges use REAL node IDs (from UI).
+        We must map them to COMPACT indices (0..N-1) for the algorithm.
         """
-        import tkinter.messagebox as messagebox  # ✅ این خط رو اضافه کن
+        import tkinter.messagebox as messagebox
+        
         if self.state.scores is None or self.state.adj_matrix is None:
             messagebox.showerror("Error", "No existing graph to update.")
             return
@@ -226,27 +227,53 @@ class WizardApp(tk.Tk):
         from src.algorithms.ppr_incremental import update_ppr_incremental
 
         try:
-            # فراخوانی الگوریتم جدید
+            mapped_edges = []
+            current_max_idx = self.state.adj_matrix.shape[0] - 1
+            
+            # Map Real IDs to Compact Indices
+            for r_src, r_dst, w in new_edges:
+                # Handle Source
+                if r_src in self.state.real_to_compact:
+                    c_src = self.state.real_to_compact[r_src]
+                else:
+                    # New node
+                    current_max_idx += 1
+                    c_src = current_max_idx
+                    self.state.real_to_compact[r_src] = c_src
+                    self.state.compact_to_real[c_src] = r_src # Update reverse map too
+                
+                # Handle Target
+                if r_dst in self.state.real_to_compact:
+                    c_dst = self.state.real_to_compact[r_dst]
+                else:
+                    # New node
+                    current_max_idx += 1
+                    c_dst = current_max_idx
+                    self.state.real_to_compact[r_dst] = c_dst
+                    self.state.compact_to_real[c_dst] = r_dst
+
+                mapped_edges.append((c_src, c_dst, w))
+
+            # فراخوانی الگوریتم جدید با mapped_edges
             new_adj, new_scores = update_ppr_incremental(
                 adj_matrix=self.state.adj_matrix,
                 old_scores=self.state.scores,
-                personalization_dict=self.state.personalization, # فرض: این را در state داری
-                alpha=0.85,  # یا مقداری که در state ذخیره کردی
-                new_edges=new_edges
+                personalization_dict=self.state.personalization,
+                alpha=getattr(self.state, 'alpha', 0.85),
+                new_edges=mapped_edges
             )
 
             # آپدیت State
             self.state.adj_matrix = new_adj
             self.state.scores = new_scores
-            
-            # (اختیاری) اگر نودهای جدید اضافه شدند، لیبل‌هایشان را 0 (unknown) بگذار
-            if len(new_scores) > len(self.state.labels):
-                # دیکشنری لیبل‌ها را آپدیت کن ولی چون دیکشنری است خودش هندل می‌شود
-                # فقط اگر لیستی داری باید حواست باشد.
-                pass
-            
+
+            # رفرش صفحه نتایج
             self.refresh_results_page()
             messagebox.showinfo("Success", f"Updated scores with {len(new_edges)} new edge(s).")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Incremental update failed:
+{e}")
             
         except Exception as e:
             messagebox.showerror("Error", f"Incremental update failed:{e}")
