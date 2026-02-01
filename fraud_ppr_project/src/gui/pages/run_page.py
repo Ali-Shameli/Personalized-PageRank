@@ -20,7 +20,10 @@ def build_run_page(frame: ttk.Frame, app) -> None:
     )
     title.grid(row=0, column=0, columnspan=3, sticky="we", padx=24, pady=(24, 8))
 
-    data_info = app.state.data_path or "No dataset selected"
+    if app.state.data_source == "manual":
+        data_info = "manual"
+    else:
+        data_info = app.state.data_path or "No dataset selected"
     data_label = ttk.Label(
         frame,
         text=f"Selected dataset: {data_info}",
