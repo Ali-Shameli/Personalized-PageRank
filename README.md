@@ -55,13 +55,13 @@ $$||r^{(t+1)} - r^{(t)}||_1 < \epsilon$$
 ```text
 fraud-detection-ppr/
 │
-├── data/                     # Dataset files
+├── data/                     # Dataset Files
 │   ├── test_small.csv
 │   └── transactions_bitcoin_labeled.csv
 |
-├── Docs/                     # Documentation
+├── docs/                     # Documentation
 |
-├── Screenshots/              # UI Screenshots
+├── screenshots/              # UI Screenshots
 │
 ├── src/                      # Source Code
 │   ├── algorithms/           # Core Logic
