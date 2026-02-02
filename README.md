@@ -98,23 +98,41 @@ python src/main.py
 ## 📊 How to Use the GUI Wizard
 ### ​Welcome Page: 
 Click "Start Analysis".
-### ​Load Transactions:  
-Support for .csv (Source, Target) and .mtx formats.
+<p align="center">
+  <img src="fraud_ppr_project/screenshots/welcome.png" alt="Fraud Detection Results" width="800">
+</p>
+
+### ​Load Transactions:
+##### Support for .csv (Source, Target) and .mtx formats.
 ​Use the provided socfb-Caltech36.mtx or test_small.csv for testing.
+<p align="center">
+  <img src="fraud_ppr_project/screenshots/load.png" alt="Fraud Detection Results" width="800">
+</p>
+
 ### ​Define Seeds:
 #### manual:
 Enter IDs of known fraudsters.
 #### ​Random: 
 Let the system pick random nodes for testing purposes.
-### ​Configure Parameters:  
+### ​Configure Parameters:
 ##### Set α (Damping Factor, usually 0.85).
 ##### ​Set ε (Tolerance, e.g., 1e-6).
+<p align="center">
+  <img src="fraud_ppr_project/screenshots/configuration.png" alt="Fraud Detection Results" width="800">
+</p>
+
 ### ​Run: 
 Click "Start Analysis".
-### ​Analyze Results: 
-View the top suspicious nodes in the table.
-​Check the Execution Time (ms) at the bottom left.
-​Review Precision@K if labels are available.
+### ​Analyze Results:
+##### View the top suspicious nodes in the table.
+##### ​Check the Execution Time (ms) at the bottom left.
+##### ​Review Precision@K if labels are available.
+<p align="center">
+  <img src="fraud_ppr_project/screenshots/highAlpha.png" alt="Fraud Detection Results" width="800">
+</p>
+<p align="center">
+  <img src="fraud_ppr_project/screenshots/lowAlpha.png" alt="Fraud Detection Results" width="800">
+</p>
 
 ## ​⚠️ Limitations & Future Work
 #### Cold Start Problem:
