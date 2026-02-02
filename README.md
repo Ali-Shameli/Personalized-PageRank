@@ -53,7 +53,7 @@ $$||r^{(t+1)} - r^{(t)}||_1 < \epsilon$$
 ## 📂 Project Structure
 
 ```text
-fraud-detection-ppr/
+fraud-ppr-project/
 │
 ├── data/                       # Dataset Files
 │   ├── test_small.csv
