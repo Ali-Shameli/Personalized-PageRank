@@ -55,34 +55,35 @@ $$||r^{(t+1)} - r^{(t)}||_1 < \epsilon$$
 ```text
 fraud-detection-ppr/
 │
-├── data/                     # Dataset Files
+├── data/                       # Dataset Files
 │   ├── test_small.csv
 │   └── transactions_bitcoin_labeled.csv
 |
-├── docs/                     # Documentation
+├── docs/                       # Documentation
 |
-├── screenshots/              # UI Screenshots
+├── screenshots/                # UI Screenshots
 │
-├── src/                      # Source Code
-│   ├── algorithms/           # Core Logic
-│   │   ├── ppr_power.py      # Power Iteration Implementation
-│   │   └── ppr_monte.py      # Monte Carlo Implementation
+├── src/                        # Source Code
+│   ├── algorithms/             # Core Logic
+│   │   ├── ppr_incremental.py  # Add New Edge
+│   │   ├── ppr_monte.py        # Monte Carlo Implementation
+│   │   └── ppr_power.py        # Power Iteration Implementation
 │   │
-│   ├── data/                 # Raw Data Processing
-│   │   ├── data_loader.py    # Load csv
-│   │   ├── graph_utils.py    # Mapping Nodes
-│   │   └── parsers.py        # Parse Manual Data
+│   ├── data/                   # Raw Data Processing
+│   │   ├── data_loader.py      # Load csv
+│   │   ├── graph_utils.py      # Mapping Nodes
+│   │   └── parsers.py          # Parse Manual Data
 |   |
-|   ├── Evaluation/           # Evaluation Metrics
-|   |   └── metrics.py        # Top-K Rank
+|   ├── Evaluation/             # Evaluation Metrics
+|   |   └── metrics.py          # Top-K Rank
 │   │
-│   └── gui/                  # UI Components (Tkinter)
-│       ├── pages/            # Wizard Pages (Welcome, Load, Results...)
-|       ├── app.py            # Main Application Controller
-│       └── theme.py          # Design Tokens 
+│   └── gui/                    # UI Components (Tkinter)
+│       ├── pages/              # Wizard Pages (Welcome, Load, Results...)
+|       ├── app.py              # Main Application Controller
+│       └── theme.py            # Design Tokens 
 │
-├── main.py                   # Entry point
-└── requirements.txt          # Python dependencies
+├── main.py                     # Entry point
+└── requirements.txt            # Python dependencies
 ```
 ---
 
