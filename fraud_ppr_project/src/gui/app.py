@@ -20,6 +20,7 @@ from .pages.about_page import build_about_page  # جدید
 from .theme import apply_dark_theme
 from .pages.visualization_page import build_visualization_page
 from .pages.add_edge_page import build_add_edge_page
+import time
 
 
 
@@ -166,6 +167,8 @@ class WizardApp(tk.Tk):
         print(f"Starting PPR execution (algorithm={algorithm}, alpha={alpha})...")
 
         self.state.last_algorithm = algorithm
+
+        start_time = time.perf_counter()
         
         if algorithm == "power":
             # Use Power iteration algorithm
@@ -191,6 +194,8 @@ class WizardApp(tk.Tk):
             )
         else:
             raise ValueError(f"Unknown algorithm: {algorithm}")
+        end_time = time.perf_counter()
+        self.state.execution_time = end_time - start_time
         
         # Unpack the result (some implementations return a tuple of scores and iterations)
         if isinstance(result, tuple):

@@ -26,6 +26,8 @@ def build_results_page(frame: ttk.Frame, app) -> None:
     )
     title.grid(row=0, column=0, sticky="we", padx=24, pady=(24, 8))
 
+
+
     # --- K Control and Info Section ---
     control_bar = ttk.Frame(frame)
     control_bar.grid(row=1, column=0, sticky="we", padx=24, pady=(0, 8))
@@ -50,6 +52,7 @@ def build_results_page(frame: ttk.Frame, app) -> None:
         justify="left",
     )
     info.grid(row=1, column=0, columnspan=3, sticky="we", pady=(4, 0))
+
 
     # --- Results Table ---
     tree = ttk.Treeview(
@@ -82,8 +85,23 @@ def build_results_page(frame: ttk.Frame, app) -> None:
     scores = app.state.scores
     labels = app.state.labels
 
+    ms_time = app.state.execution_time * 1000
+
+    algo_name = "Power Iteration" if app.state.last_algorithm == "power" else "Monte Carlo"
+    time_text = f"Method: {algo_name}  |  Time: {ms_time:.2f} ms"
+
+    time_label = ttk.Label(
+        frame,
+        text=time_text,
+        style="Small.TLabel",
+        foreground="#4caf50"
+    )
+    time_label.grid(row=3, column=0, sticky="w", padx=24, pady=(5, 0))
+
+
     if scores is None or labels is None:
         info.configure(text="No results available. Run the analysis first.")
+
 
         # Create minimal bottom bar for navigation
         bottom_bar = ttk.Frame(frame)
