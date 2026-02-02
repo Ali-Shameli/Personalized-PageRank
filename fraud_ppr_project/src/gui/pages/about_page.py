@@ -67,8 +67,7 @@ def build_about_page(frame: ttk.Frame, app) -> None:
     )
     credits.grid(row=3, column=0, sticky="nwe", padx=24, pady=(0, 16))
 
-    # لینک گیت‌هاب
-    repo_url = "https://github.com/Ali-Shameli/Personalized-PageRank.git"  # این را عوض کن
+    repo_url = "https://github.com/Ali-Shameli/Personalized-PageRank.git"
 
     link_btn = ttk.Button(
         frame,
@@ -78,7 +77,6 @@ def build_about_page(frame: ttk.Frame, app) -> None:
     )
     link_btn.grid(row=4, column=0, sticky="w", padx=24, pady=(0, 16))
 
-    # نوار دکمه
     button_bar = ttk.Frame(frame)
     button_bar.grid(row=5, column=0, sticky="e", padx=24, pady=24)
 

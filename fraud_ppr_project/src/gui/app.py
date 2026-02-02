@@ -61,7 +61,6 @@ class WizardApp(tk.Tk):
         self._create_page(0)
         self.show_page(0)
 
-    # ---------- صفحات ----------
 
     def _create_page(self, index: int) -> None:
         if index in self.frames:
@@ -91,7 +90,6 @@ class WizardApp(tk.Tk):
             build_add_edge_page(frame, app=self)
 
     def show_page(self, index: int) -> None:
-    # برای Results و Visualization همیشه ریفرش کن
         if index in (2, 3, 6) and index in self.frames:
             self.frames[index].destroy()
             del self.frames[index]
@@ -252,11 +250,9 @@ class WizardApp(tk.Tk):
                     self.state.real_to_compact[r_src] = c_src
                     self.state.compact_to_real[c_src] = r_src # Update reverse map too
                 
-                # Handle Target
                 if r_dst in self.state.real_to_compact:
                     c_dst = self.state.real_to_compact[r_dst]
                 else:
-                    # New node
                     current_max_idx += 1
                     c_dst = current_max_idx
                     self.state.real_to_compact[r_dst] = c_dst
@@ -264,7 +260,6 @@ class WizardApp(tk.Tk):
 
                 mapped_edges.append((c_src, c_dst, w))
 
-            # فراخوانی الگوریتم جدید با mapped_edges
             new_adj, new_scores = update_ppr_incremental(
                 adj_matrix=self.state.adj_matrix,
                 old_scores=self.state.scores,
@@ -273,11 +268,9 @@ class WizardApp(tk.Tk):
                 new_edges=mapped_edges
             )
 
-            # آپدیت State
             self.state.adj_matrix = new_adj
             self.state.scores = new_scores
 
-            # رفرش صفحه نتایج
             self.refresh_results_page()
             messagebox.showinfo("Success", f"Updated scores with {len(new_edges)} new edge(s).")
 
@@ -288,16 +281,12 @@ class WizardApp(tk.Tk):
             messagebox.showerror("Error", f"Incremental update failed:{e}")
         
     def refresh_results_page(self):
-        """رفرش صفحه نتایج"""
-        # پاک کردن صفحه نتایج اگر وجود دارد
         if 3 in self.frames:
             self.frames[3].destroy()
             del self.frames[3]
-        
-        # ساخت مجدد صفحه
+
         self._create_page(3)
-        
-        # نمایش صفحه
+
         self.show_page(3)
         
         print("Results page refreshed successfully")

@@ -12,7 +12,6 @@ def build_visualization_page(frame: ttk.Frame, app) -> None:
     frame.columnconfigure(0, weight=1)
     frame.rowconfigure(3, weight=1)
 
-    # --- عنوان ---
     title = ttk.Label(
         frame,
         text="4. Visualization",
@@ -21,7 +20,6 @@ def build_visualization_page(frame: ttk.Frame, app) -> None:
     )
     title.grid(row=0, column=0, sticky="we", padx=24, pady=(24, 8))
 
-    # --- نوار کنترل N ---
     control_bar = ttk.Frame(frame)
     control_bar.grid(row=1, column=0, sticky="we", padx=24, pady=(0, 8))
     control_bar.columnconfigure(2, weight=1)
@@ -50,7 +48,6 @@ def build_visualization_page(frame: ttk.Frame, app) -> None:
     )
     info.grid(row=2, column=0, sticky="nw", padx=24, pady=(0, 4))
 
-    # --- Chart area (جای خالی که بعداً پر می‌کنیم) ---
     fig = Figure(figsize=(5, 3), dpi=100)
     ax = fig.add_subplot(111)
 
@@ -78,7 +75,6 @@ def build_visualization_page(frame: ttk.Frame, app) -> None:
 
         n_total = len(scores)
 
-        # خواندن N با ولیدیشن
         try:
             n_value = int(n_entry.get())
         except ValueError:
@@ -112,7 +108,6 @@ def build_visualization_page(frame: ttk.Frame, app) -> None:
         ax.set_axis_on()
         canvas.draw()
 
-    # دکمه Apply N
     apply_btn = ttk.Button(
         control_bar,
         text="Apply N",
@@ -121,7 +116,6 @@ def build_visualization_page(frame: ttk.Frame, app) -> None:
     )
     apply_btn.grid(row=0, column=2, sticky="e")
 
-    # --- نوار پایین ---
     button_bar = ttk.Frame(frame)
     button_bar.grid(row=4, column=0, sticky="e", padx=24, pady=24)
 
@@ -132,5 +126,4 @@ def build_visualization_page(frame: ttk.Frame, app) -> None:
     )
     back_btn.pack(side="right")
 
-    # بار اول
     refresh_histogram()

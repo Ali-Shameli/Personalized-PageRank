@@ -20,7 +20,6 @@ def build_load_page(frame: ttk.Frame, app) -> None:
 
     frame.rowconfigure(5, weight=0)
 
-    # ---- عنوان ----
     title = ttk.Label(
         frame,
         text="1. Load transactions data",
@@ -50,7 +49,6 @@ def build_load_page(frame: ttk.Frame, app) -> None:
 
     sample_var = tk.StringVar(value="")
 
-    # مسیرها را متناسب با پروژه‌ات تنظیم کن
     samples = {
         "Small synthetic (test_small.csv)": os.path.join("data", "test_small.csv"),
         "Labeled Bitcoin (transactions_bitcoin_labeled.csv)": os.path.join(
@@ -69,7 +67,6 @@ def build_load_page(frame: ttk.Frame, app) -> None:
         rb.grid(row=row, column=0, columnspan=3, sticky="w", padx=12, pady=4)
         row += 1
 
-    # ---- فایل دلخواه ----
     custom_frame = ttk.LabelFrame(frame, text="Or load from CSV file")
     custom_frame.grid(row=3, column=0, columnspan=3, sticky="we", padx=24, pady=(0, 12))
     for c in range(3):

@@ -9,7 +9,6 @@ def apply_dark_theme(root: tk.Tk) -> ttk.Style:
     """Configure a simple dark theme and return the style object."""
     style = ttk.Style(root)
 
-    # Base colors (می‌توانیم بعداً فاین‌تیون کنیم)
     bg = "#262626"
     frame_bg = "#303030"
     fg = "#f5f5f5"
@@ -58,7 +57,6 @@ def apply_dark_theme(root: tk.Tk) -> ttk.Style:
         background=[("active", "#4b9aff"), ("pressed", "#3375cc")],
     )
 
-    # Danger button (اگه جایی لازم شد)
     style.configure(
         "Danger.TButton",
         padding=(10, 6),
@@ -79,7 +77,6 @@ def apply_dark_theme(root: tk.Tk) -> ttk.Style:
         borderwidth=0,
     )
 
-    # Treeview (برای جدول نتایج)
     style.configure(
         "Treeview",
         background=frame_bg,
