@@ -116,20 +116,19 @@ Click "Start Analysis".
 </p>
 
 ### ​Load Transactions:
-##### Support for .csv (Source, Target) and .mtx formats.
-​Use the provided transactions_bitcoin_labeled.csv or test_small.csv for testing.
+* Support for .csv (Source, Target) and .mtx formats.
+* ​Use the provided transactions_bitcoin_labeled.csv or test_small.csv for testing.
 <p align="center">
   <img src="fraud_ppr_project/screenshots/load.png" alt="Fraud Detection Results" width="800">
 </p>
 
 ### ​Define Seeds:
-#### manual:
-Enter IDs of known fraudsters.
-#### ​Random: 
-Let the system pick random nodes for testing purposes.
+* **manual:** Enter IDs of known fraudsters.
+* ​**Random:** Let the system pick random nodes for testing purposes.
+* **From Dataset (Labels):** Automatically selects seeds if the CSV file contains a `label` column (where **1** indicates a fraudster).
 ### ​Configure Parameters:
-##### Set α (Damping Factor).
-##### ​Set ε (Tolerance, e.g., 1e-6).
+* Set α (Damping Factor).
+* ​Set ε (Tolerance, e.g., 1e-6).
 <p align="center">
   <img src="fraud_ppr_project/screenshots/configuration.png" alt="Fraud Detection Results" width="800">
 </p>
@@ -137,9 +136,9 @@ Let the system pick random nodes for testing purposes.
 ### ​Run: 
 Click "Run Analysis".
 ### ​Analyze Results:
-##### View the top suspicious nodes in the table.
-##### ​Check the Execution Time (ms) at the bottom left.
-##### ​Review Precision@K if labels are available.
+* View the top suspicious nodes in the table.
+* ​Check the Execution Time (ms) at the bottom left.
+* ​Review Precision@K if labels are available.
 <p align="center">
   <img src="fraud_ppr_project/screenshots/highAlpha.png" alt="Fraud Detection Results" width="800">
 </p>
@@ -148,13 +147,11 @@ Click "Run Analysis".
 </p>
 
 ## ​⚠️ Limitations & Future Work
-#### Cold Start Problem:
-New nodes with no transaction history cannot be scored accurately as the algorithm relies purely on link analysis.
+* **Cold Start Problem:** New nodes with no transaction history cannot be scored accurately as the algorithm relies purely on link analysis.
 
-#### Dynamic Updates:
-The current system uses an incremental update approach for new edges, but a full re-computation is recommended periodically to reset accumulated error drift.
+* **Dynamic Updates:** The current system uses an incremental update approach for new edges, but a full re-computation is recommended periodically to reset accumulated error drift.
 
 ## ​👨‍💻Authors
 ### Developed by:
-#### Shahriyar Moqimi and Ali Shameli
-​Submitted as the final project for the Data Structures course, Shahid Beheshti University.
+* **Shahriyar Moqimi** and **Ali Shameli**
+* ​Submitted as the final project for the Data Structures course, Shahid Beheshti University.
