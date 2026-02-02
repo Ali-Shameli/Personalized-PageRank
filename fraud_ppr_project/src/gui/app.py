@@ -28,6 +28,7 @@ class AppState:
         self.data_path: str | None = None
         self.data_source: str | None = None
         self.self_algorithm: str | None = None
+        self.execution_time: float = 0.0
 
 
         self.scores = None          # np.array
