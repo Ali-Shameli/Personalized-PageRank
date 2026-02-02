@@ -61,11 +61,8 @@ def personalized_pagerank(
     # Initialization (Warm Start Logic)
     if start_vec is not None:
         if start_vec.shape[0] != n:
-             # اگر سایز یکی نیست (مثلاً نود جدید)، باید هندل شه یا ارور بده.
-             # اینجا فرض می‌کنیم caller (مثل تابع incremental) قبلاً pad کرده.
              raise ValueError(f"start_vec length {start_vec.shape[0]} != n_nodes {n}")
         r = start_vec.astype(np.float64).copy()
-        # نرمال‌سازی شروعی برای اطمینان
         if r.sum() > 0:
             r /= r.sum()
     else:
@@ -81,9 +78,6 @@ def personalized_pagerank(
         
         # Power Iteration Formula
         # r = (1-α)*walk + ( (1-α)*dangling_mass + α ) * p
-        # (فرمول استاندارد معمولاً alpha احتمال ریستارت است، یعنی alpha * p)
-        # فرمول تو: (1 - alpha) * walk + ... + alpha * p
-        # که یعنی alpha احتمال تله‌پورت است. درسته.
         
         r = (1.0 - alpha) * walk + ((1.0 - alpha) * dangling_mass + alpha) * p
 
