@@ -1,3 +1,4 @@
+# src/gui/pages/load_page.py
 from __future__ import annotations
 
 import os
@@ -9,9 +10,15 @@ def build_load_page(frame: ttk.Frame, app) -> None:
     """Page 1: choose sample data or browse custom CSV."""
     for c in range(3):
         frame.columnconfigure(c, weight=1)
-    for r in range(6):
-        frame.rowconfigure(r, weight=0)
-    frame.rowconfigure(6, weight=1)
+
+    frame.rowconfigure(0, weight=0)
+    frame.rowconfigure(1, weight=0)
+    frame.rowconfigure(2, weight=0)
+    frame.rowconfigure(3, weight=0)
+
+    frame.rowconfigure(4, weight=1)
+
+    frame.rowconfigure(5, weight=0)
 
     # ---- عنوان ----
     title = ttk.Label(
@@ -85,12 +92,36 @@ def build_load_page(frame: ttk.Frame, app) -> None:
     browse_btn = ttk.Button(custom_frame, text="Browse…", command=browse_file)
     browse_btn.grid(row=0, column=2, sticky="we", padx=(0, 12), pady=(8, 8))
 
-    # ---- دکمه‌های پایین ----
+    # ---- Navigation Bar (Bottom) ----
     button_bar = ttk.Frame(frame)
     button_bar.grid(row=5, column=0, columnspan=3, sticky="e", padx=24, pady=24)
 
+    # Define a custom style for the Manual Entry button (Orange accent)
+    style = ttk.Style()
+    style.configure(
+        "Manual.TButton",
+        foreground="white",  # Text color
+        background="#FF9800",  # Background color (Orange)
+        padding=(10, 5)  # Internal padding to match other buttons
+    )
+    # Adjust hover effects
+    style.map("Manual.TButton",
+              background=[("active", "#F57C00")],
+              foreground=[("active", "white")]
+              )
+
+    # 1. Manual Graph Button (Placed to the far left)
+    manual_btn = ttk.Button(
+        button_bar,
+        text="Enter Graph Manually",
+        style="Manual.TButton",  # Apply the custom orange style
+        command=lambda: app.show_page(7),  # Navigate to Manual Page (Index 7)
+    )
+    # Add padding to the right (20px) to separate it from the Back button
+    manual_btn.pack(side="left", padx=(0, 20))
+
     def on_next() -> None:
-        # اولویت: sample اگر انتخاب شده، بعد custom
+        # Priority: Check if Sample data is selected, otherwise use Custom file
         chosen_path = sample_var.get().strip()
         source = None
 
@@ -103,24 +134,21 @@ def build_load_page(frame: ttk.Frame, app) -> None:
                 source = "custom"
 
         if not chosen_path:
-            # فعلاً فقط یک پیام ساده (بعداً می‌توانی messagebox استفاده کنی)
             print("No data selected")
             return
-
-        # print("DEBUG chosen_path:", chosen_path, "source:", source)
 
         app.state.data_path = chosen_path
         app.state.data_source = source
 
-        # reset old analysis results
+        # Reset previous analysis results
         app.state.scores = None
         app.state.labels = None
         app.state.precision_at_50 = None
 
+        # Go to Run Page
         app.show_page(2)
 
-        app.state.precision_at_50 = None
-
+    # 2. Back Button
     back_btn = ttk.Button(
         button_bar,
         text="Back",
@@ -128,6 +156,7 @@ def build_load_page(frame: ttk.Frame, app) -> None:
     )
     back_btn.pack(side="left", padx=(0, 8))
 
+    # 3. Next Button
     next_btn = ttk.Button(
         button_bar,
         text="Next",

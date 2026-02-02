@@ -1,3 +1,4 @@
+# src/gui/pages/visualisation_page.py
 from __future__ import annotations
 
 import numpy as np

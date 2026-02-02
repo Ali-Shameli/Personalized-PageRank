@@ -1,14 +1,15 @@
+# gui/app.py
 from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk
 from typing import Dict
-
 import numpy as np
 
 from src.data.data_loader import load_transactions, build_adj_matrix
 from src.algorithms.ppr_power import make_personalization_vector, personalized_pagerank
 from src.evaluation.metrics import precision_at_k
+from .pages.manual_page import build_manual_page
 
 from .pages.welcome_page import build_welcome_page
 from .pages.load_page import build_load_page
@@ -18,6 +19,8 @@ from .pages.how_page import build_how_page      # جدید
 from .pages.about_page import build_about_page  # جدید
 from .theme import apply_dark_theme
 from .pages.visualization_page import build_visualization_page
+from .pages.add_edge_page import build_add_edge_page
+import time
 
 
 
@@ -25,10 +28,14 @@ class AppState:
     def __init__(self) -> None:
         self.data_path: str | None = None
         self.data_source: str | None = None
+        self.self_algorithm: str | None = None
+        self.execution_time: float = 0.0
+
 
         self.scores = None          # np.array
         self.labels = None          # dict
         self.precision_at_50 = None # float
+        self.reverse_map = None
 
 
 class WizardApp(tk.Tk):
@@ -78,10 +85,14 @@ class WizardApp(tk.Tk):
             build_about_page(frame, app=self)
         elif index == 6:
             build_visualization_page(frame, app=self)
-            
+        elif index == 7:
+            build_manual_page(frame, app=self)
+        elif index == 8:
+            build_add_edge_page(frame, app=self)
+
     def show_page(self, index: int) -> None:
     # برای Results و Visualization همیشه ریفرش کن
-        if index in (3, 6) and index in self.frames:
+        if index in (2, 3, 6) and index in self.frames:
             self.frames[index].destroy()
             del self.frames[index]
 
@@ -102,49 +113,196 @@ class WizardApp(tk.Tk):
             "Fraud Detection via Personalized PageRank.\nCourse project.",
         )
 
-    def run_ppr(self, alpha: float, max_iter: int, tol: float) -> None:
-        if not self.state.data_path:
-            raise ValueError("No dataset selected")
+    def run_ppr(self, alpha: float, weighted: bool = True, algorithm: str = "power",
+            # Optional parameters for Power iteration
+            max_iter: int = 100, tol: float = 1e-6,
+            # Optional parameters for Monte Carlo  
+            num_walks: int = 1000, max_steps: int = 50) -> None:
+        """
+        Executes the Personalized PageRank algorithm.
+        Handles data loading (from manual entry or file), matrix construction,
+        and result calculation.
+        """
 
-        # print("DEBUG run_ppr data_path:", self.state.data_path)
-        
-        src, dst, n_nodes, labels = load_transactions(self.state.data_path)
-        # print("DEBUG shapes:", type(src), src.shape, type(dst), dst.shape, n_nodes, len(labels))
+        # --- Step 1: Determine Data Source and Load Data ---
+        if self.state.data_source == "manual":
+            # Retrieve pre-parsed data directly from the application state (RAM)
+            # This data was processed in the Manual Page
+            src, dst, weights, n_nodes, labels, rev_map = self.state.manual_data
+            print(f"Using Manually Entered Data. Total Nodes: {n_nodes}")
 
-        A = build_adj_matrix(src, dst, n_nodes)
-        # print("DEBUG A shape:", A.shape, "nnz:", A.nnz)
+        else:
+            # Default behavior: Load from the selected CSV file
+            if not self.state.data_path:
+                raise ValueError("No dataset selected. Please go back and select a file.")
 
+            # Load and map the data using the data loader module
+            src, dst, weights, n_nodes, labels, rev_map = load_transactions(self.state.data_path)
+            print(f"Graph loaded from file: {self.state.data_path}. Total Nodes: {n_nodes}")
+
+        # --- Step 2: Handle weighted/unweighted mode ---
+        if not weighted:
+            print("Running in UNWEIGHTED mode: all edge weights set to 1.0")
+            weights = np.ones_like(weights, dtype=float)  # همه وزن‌ها = ۱
+        else:
+            print("Running in WEIGHTED mode: using original edge weights")
+
+        # --- Step 3: Store Metadata ---
+        # Save the reverse mapping dictionary to the state.
+        # This is crucial for the Results Page to display real Node IDs instead of internal indices.
+        self.state.reverse_map = rev_map
+
+        # --- Step 4: Build Adjacency Matrix ---
+        # Build the sparse weighted adjacency matrix
+        A = build_adj_matrix(src, dst, weights, n_nodes)
+
+        # --- Step 5: Prepare Personalization Vector ---
+        # Identify seed nodes (confirmed fraudsters) from the labels dictionary
         fraud_seeds = [node for node, lab in labels.items() if lab == 1]
-        # print("DEBUG fraud_seeds length:", len(fraud_seeds))
 
+        # Create the personalization vector (distribution) based on seeds
         p = make_personalization_vector(n_nodes, fraud_seeds)
 
-        # print("DEBUG: before personalized_pagerank")
-        result = personalized_pagerank(
-            A,
-            alpha=alpha,
-            max_iter=max_iter,
-            tol=tol,
-            personalize=p,
-        )
-        # اگر فقط یک آرایه برگرداند، همان را بگیر؛ اگر tuple بود، جزء اولش را بگیر
+        # --- Step 6: Run the Algorithm ---
+        print(f"Starting PPR execution (algorithm={algorithm}, alpha={alpha})...")
+
+        self.state.last_algorithm = algorithm
+
+        start_time = time.perf_counter()
+        
+        if algorithm == "power":
+            # Use Power iteration algorithm
+            from src.algorithms.ppr_power import personalized_pagerank as ppr_power
+            result = ppr_power(
+                A,
+                alpha=alpha,
+                max_iter=max_iter,
+                tol=tol,
+                personalize=p,
+            )
+        elif algorithm == "monte_carlo":
+            # Use Monte Carlo algorithm
+            from src.algorithms.ppr_monte_carlo import personalized_pagerank_monte_carlo
+            # Note: Monte Carlo parameters may be different
+            result = personalized_pagerank_monte_carlo(
+                A,
+                alpha=alpha,
+                personalize=p,
+                # These parameters should come from GUI
+                num_walks= num_walks,  
+                max_steps= max_steps
+            )
+        else:
+            raise ValueError(f"Unknown algorithm: {algorithm}")
+        end_time = time.perf_counter()
+        self.state.execution_time = end_time - start_time
+        
+        # Unpack the result (some implementations return a tuple of scores and iterations)
         if isinstance(result, tuple):
             scores = result[0]
         else:
             scores = result
-        # print("DEBUG: after personalized_pagerank, before precision_at_k")
-        # print("DEBUG type(scores):", type(scores))
-        # print("DEBUG scores shape / first element:", getattr(scores, "shape", None), scores[0] if hasattr(scores, "__getitem__") else None)
 
+        # --- Step 7: Calculate Metrics ---
+        # Calculate Precision@50 to evaluate performance (if ground truth labels exist)
         prec50 = precision_at_k(scores, labels, k=50)
-        # print("DEBUG: after precision_at_k")
 
+        # --- Step 8: Update Application State ---
+        # Store results in the state to be accessed by the Results Page
         self.state.scores = scores
         self.state.labels = labels
         self.state.precision_at_50 = prec50
+        self.state.weighted = weighted  # Store the mode for reference
+        self.state.algorithm = algorithm
 
+        # === NEW: Store data for incremental updates ===
+        self.state.adj_matrix = A  # CSR sparse matrix
+        self.state.personalization = p  # personalization vector
+        self.state.alpha = alpha  # damping factor
+        self.state.compact_to_real = rev_map  # reverse mapping
+        self.state.real_to_compact = {v: k for k, v in rev_map.items()}  # forward mapping
+
+    def run_incremental_ppr(self, new_edges):
+        """
+        new_edges: list of (real_src, real_dst, weight)
+        Note: The input edges use REAL node IDs (from UI).
+        We must map them to COMPACT indices (0..N-1) for the algorithm.
+        """
+        import tkinter.messagebox as messagebox
         
-        # print("DEBUG saved scores len:", len(scores), "labels len:", len(labels), "prec50:", prec50)
+        if self.state.scores is None or self.state.adj_matrix is None:
+            messagebox.showerror("Error", "No existing graph to update.")
+            return
+
+        from src.algorithms.ppr_incremental import update_ppr_incremental
+
+        try:
+            mapped_edges = []
+            current_max_idx = self.state.adj_matrix.shape[0] - 1
+            
+            # Map Real IDs to Compact Indices
+            for r_src, r_dst, w in new_edges:
+                # Handle Source
+                if r_src in self.state.real_to_compact:
+                    c_src = self.state.real_to_compact[r_src]
+                else:
+                    # New node
+                    current_max_idx += 1
+                    c_src = current_max_idx
+                    self.state.real_to_compact[r_src] = c_src
+                    self.state.compact_to_real[c_src] = r_src # Update reverse map too
+                
+                # Handle Target
+                if r_dst in self.state.real_to_compact:
+                    c_dst = self.state.real_to_compact[r_dst]
+                else:
+                    # New node
+                    current_max_idx += 1
+                    c_dst = current_max_idx
+                    self.state.real_to_compact[r_dst] = c_dst
+                    self.state.compact_to_real[c_dst] = r_dst
+
+                mapped_edges.append((c_src, c_dst, w))
+
+            # فراخوانی الگوریتم جدید با mapped_edges
+            new_adj, new_scores = update_ppr_incremental(
+                adj_matrix=self.state.adj_matrix,
+                old_scores=self.state.scores,
+                personalization_vec=self.state.personalization,
+                alpha=getattr(self.state, 'alpha', 0.85),
+                new_edges=mapped_edges
+            )
+
+            # آپدیت State
+            self.state.adj_matrix = new_adj
+            self.state.scores = new_scores
+
+            # رفرش صفحه نتایج
+            self.refresh_results_page()
+            messagebox.showinfo("Success", f"Updated scores with {len(new_edges)} new edge(s).")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Incremental update failed:{e}")
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Incremental update failed:{e}")
+        
+    def refresh_results_page(self):
+        """رفرش صفحه نتایج"""
+        # پاک کردن صفحه نتایج اگر وجود دارد
+        if 3 in self.frames:
+            self.frames[3].destroy()
+            del self.frames[3]
+        
+        # ساخت مجدد صفحه
+        self._create_page(3)
+        
+        # نمایش صفحه
+        self.show_page(3)
+        
+        print("Results page refreshed successfully")
+        
+    print("Analysis completed successfully.")
 
 
 def run_app() -> None:

@@ -1,22 +1,21 @@
-# src/gui/pages/welcome_page.py
 from __future__ import annotations
 
 from tkinter import ttk
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from gui.app import WizardApp  # فقط برای type hints، در runtime استفاده نمی‌شود
+    from gui.app import WizardApp
 
 
-def build_welcome_page(frame: ttk.Frame, app) -> None:
-    """Build the centered welcome page UI inside the given frame."""
+def build_welcome_page(frame: ttk.Frame, app: WizardApp) -> None:
     frame.columnconfigure(0, weight=1)
     frame.columnconfigure(1, weight=2)
     frame.columnconfigure(2, weight=1)
 
-    for r in range(6):
+    for r in range(7):
         frame.rowconfigure(r, weight=0)
-    frame.rowconfigure(5, weight=1)
+
+    frame.rowconfigure(6, weight=1)
 
     title = ttk.Label(
         frame,
@@ -44,10 +43,10 @@ def build_welcome_page(frame: ttk.Frame, app) -> None:
         frame,
         text="Start analysis",
         style="Nav.TButton",
-        command=lambda: app.show_page(1),  # رفتن به صفحه Load
+        command=lambda: app.show_page(1),
     )
     start_btn.grid(row=2, column=1, sticky="we", padx=120, pady=(4, 4))
-    
+
     how_btn = ttk.Button(
         frame,
         text="How it works",
@@ -63,3 +62,11 @@ def build_welcome_page(frame: ttk.Frame, app) -> None:
         command=lambda: app.show_page(5),
     )
     about_btn.grid(row=4, column=1, sticky="we", padx=120, pady=(4, 4))
+
+    exit_btn = ttk.Button(
+        frame,
+        text="Exit",
+        style="Danger.TButton",
+        command=app.destroy,
+    )
+    exit_btn.grid(row=5, column=1, sticky="we", padx=120, pady=(4, 4))
