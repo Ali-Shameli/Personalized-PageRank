@@ -55,22 +55,34 @@ $$||r^{(t+1)} - r^{(t)}||_1 < \epsilon$$
 ```text
 fraud-detection-ppr/
 │
-├── data/                   # Dataset files (CSV, MTX support)
-│   ├── transactions.csv
-│   └── socfb-Caltech36.mtx
+├── data/                     # Dataset files
+│   ├── test_small.csv
+│   └── transactions_bitcoin_labeled.csv
+|
+├── Docs/                     # Documentation
+|
+├── Screenshots/              # UI Screenshots
 │
-├── src/                    # Source Code
-│   ├── algorithms/         # Core Logic
-│   │   ├── ppr_power.py    # Power Iteration Implementation
-│   │   └── ppr_monte.py    # Monte Carlo Implementation
-│   ├── gui/                # UI Components (Tkinter)
-│   │   ├── pages/          # Wizard Pages (Welcome, Load, Results...)
-│   │   └── app.py          # Main Application Controller
-│   └── utils/              # Graph Parsers & Matrix Helpers
+├── src/                      # Source Code
+│   ├── algorithms/           # Core Logic
+│   │   ├── ppr_power.py      # Power Iteration Implementation
+│   │   └── ppr_monte.py      # Monte Carlo Implementation
+│   │
+│   ├── data/                 # Raw Data Processing
+│   │   ├── data_loader.py    # Load csv
+│   │   ├── graph_utils.py    # Mapping Nodes
+│   │   └── parsers.py        # Parse Manual Data
+|   |
+|   ├── Evaluation/           # Evaluation Metrics
+|   |   └── metrics.py        # Top-K Rank
+│   │
+│   └── gui/                  # UI Components (Tkinter)
+│       ├── pages/            # Wizard Pages (Welcome, Load, Results...)
+|       ├── app.py            # Main Application Controller
+│       └── theme.py          # Design Tokens 
 │
-├── results/                # Generated plots and logs
-├── requirements.txt        # Python dependencies
-└── main.py                 # Entry point
+├── main.py                   # Entry point
+└── requirements.txt          # Python dependencies
 ```
 ---
 
