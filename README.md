@@ -153,7 +153,7 @@ New nodes with no transaction history cannot be scored accurately as the algorit
 #### Dynamic Updates:
 The current system uses an incremental update approach for new edges, but a full re-computation is recommended periodically to reset accumulated error drift.
 
-## ​👨‍💻Author
+## ​👨‍💻Authors
 ### Developed by:
 #### Shahriyar Moqimi and Ali Shameli
 ​Submitted as the final project for the Data Structures course, Shahid Beheshti University.
