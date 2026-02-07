@@ -105,7 +105,7 @@ pip install -r requirements.txt
 
 ### ​3. Run the Application
 ```bash
-python src/main.py
+python main.py
 ```
 
 ## 📊 How to Use the GUI Wizard
